@@ -1,18 +1,49 @@
 import os
-import sys
+import litellm
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import JSONResponse
 
-_here = os.path.dirname(os.path.abspath(__file__))
+# Configure LiteLLM for optimal serverless execution
+litellm.drop_params = True
+litellm.telemetry = False
 
-# Critical environment overrides for Vercel serverless read-only environment
-os.environ["TMPDIR"] = "/tmp"
-os.environ["HOME"] = "/tmp"
-os.environ["PRISMA_BINARY_CACHE_DIR"] = "/tmp/prisma-python"
-os.environ["LITELLM_CONFIG_PATH"] = os.path.join(_here, "..", "config.yaml")
-os.environ["DISABLE_SCHEMA_UPDATE"] = "true"
-os.environ["LITELLM_LOG"] = "ERROR"
+app = FastAPI(title="LiteLLM Serverless Proxy Gateway")
 
-# Ensure DATABASE_URL exists so Prisma client initialization doesn't throw uncaught error
-if "DATABASE_URL" not in os.environ or not os.environ["DATABASE_URL"]:
-    os.environ["DATABASE_URL"] = "postgresql://user:pass@localhost:5432/db"
+@app.get("/")
+@app.get("/health/liveliness")
+@app.get("/health/readiness")
+async def health_check():
+    return {"status": "healthy", "mode": "serverless", "service": "litellm-proxy"}
 
-from litellm.proxy.proxy_server import app
+@app.get("/models")
+@app.get("/v1/models")
+async def list_models():
+    return {
+        "object": "list",
+        "data": [
+            {"id": "groq-llama3-70b", "object": "model", "owned_by": "litellm"},
+            {"id": "gemini-flash", "object": "model", "owned_by": "litellm"},
+            {"id": "gpt-4o", "object": "model", "owned_by": "litellm"},
+            {"id": "claude-3-5-sonnet", "object": "model", "owned_by": "litellm"}
+        ]
+    }
+
+@app.post("/v1/chat/completions")
+@app.post("/chat/completions")
+async def chat_completions(request: Request):
+    master_key = os.environ.get("LITELLM_MASTER_KEY")
+    if master_key:
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.replace("Bearer ", "").strip()
+        if token != master_key:
+            raise HTTPException(status_code=401, detail="Unauthorized: Invalid Master Key")
+
+    try:
+        body = await request.json()
+        response = await litellm.acompletion(**body)
+        return response
+    except Exception as err:
+        return JSONResponse(
+            status_code=500,
+            content={"error": {"message": str(err), "type": "litellm_proxy_error"}}
+        )
