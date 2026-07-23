@@ -7,7 +7,8 @@
   ],
   "build": {
     "env": {
-      "PRISMA_SKIP_DOWNLOAD_ALL": "1"
+      "PRISMA_SKIP_DOWNLOAD_ALL": "1",
+      "VERCEL_ANALYZE_BUILD_OUTPUT": "1"
     }
   },
   "env": {
