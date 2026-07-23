@@ -5,12 +5,17 @@
       "destination": "/api/index.py"
     }
   ],
+  "build": {
+    "env": {
+      "PRISMA_SKIP_DOWNLOAD_ALL": "1"
+    }
+  },
   "env": {
     "DISABLE_SCHEMA_UPDATE": "true"
   },
   "functions": {
     "api/index.py": {
-      "excludeFiles": "**/prisma/binaries/engines/**/{migration-engine-*,introspection-engine-*,prisma-fmt-*,schema-engine-*}"
+      "excludeFiles": "**/{migration-engine-*,schema-engine-*,introspection-engine-*,prisma-fmt-*}"
     }
   }
 }
