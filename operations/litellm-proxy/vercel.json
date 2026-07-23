@@ -5,18 +5,7 @@
       "destination": "/api/index.py"
     }
   ],
-  "build": {
-    "env": {
-      "PRISMA_SKIP_DOWNLOAD_ALL": "1",
-      "VERCEL_ANALYZE_BUILD_OUTPUT": "1"
-    }
-  },
   "env": {
     "DISABLE_SCHEMA_UPDATE": "true"
-  },
-  "functions": {
-    "api/index.py": {
-      "excludeFiles": "**/{migration-engine-*,schema-engine-*,introspection-engine-*,prisma-fmt-*}"
-    }
   }
 }
