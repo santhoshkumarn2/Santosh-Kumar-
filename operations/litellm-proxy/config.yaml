@@ -1,15 +1,11 @@
 # =========================================================================
-# LiteLLM Proxy Configuration - Dynamic DB & Model Endpoints Mode
-# =========================================================================
-# Models, keys, and provider endpoints are stored dynamically in DB memory
-# and managed via LiteLLM Admin API (/model/new, /key/generate) or UI.
-# No credentials or API keys are hardcoded in this configuration file.
+# LiteLLM Proxy Configuration - Serverless Gateway Mode
 # =========================================================================
 
-model_list: [] # Populated dynamically via LiteLLM Database & Admin API
+model_list: []
 
 router_settings:
-  routing_strategy: usage-based-routing-v2
+  routing_strategy: simple-shuffle
   num_retries: 3
   timeout: 30
 
