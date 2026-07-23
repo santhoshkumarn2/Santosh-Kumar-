@@ -1,51 +1,17 @@
-model_list:
-  # =========================================================================
-  # GROQ FREE TIER ENDPOINTS (Multi-Key Load Balancing & Fallback)
-  # =========================================================================
-  - model_name: groq-llama3-70b
-    litellm_params:
-      model: groq/llama-3.1-70b-versatile
-      api_key: os.environ/GROQ_API_KEY_1
+# =========================================================================
+# LiteLLM Proxy Configuration - Dynamic DB & Model Endpoints Mode
+# =========================================================================
+# Models, keys, and provider endpoints are stored dynamically in DB memory
+# and managed via LiteLLM Admin API (/model/new, /key/generate) or UI.
+# No credentials or API keys are hardcoded in this configuration file.
+# =========================================================================
 
-  - model_name: groq-llama3-70b
-    litellm_params:
-      model: groq/llama-3.1-70b-versatile
-      api_key: os.environ/GROQ_API_KEY_2
-
-  - model_name: groq-gemma2-9b
-    litellm_params:
-      model: groq/gemma2-9b-it
-      api_key: os.environ/GROQ_API_KEY_1
-
-  - model_name: groq-gemma2-9b
-    litellm_params:
-      model: groq/gemma2-9b-it
-      api_key: os.environ/GROQ_API_KEY_2
-
-  # =========================================================================
-  # GEMINI FREE TIER ENDPOINTS (Multi-Key Load Balancing & Fallback)
-  # =========================================================================
-  - model_name: gemini-flash
-    litellm_params:
-      model: gemini/gemini-2.0-flash-exp
-      api_key: os.environ/GEMINI_API_KEY_1
-
-  - model_name: gemini-flash
-    litellm_params:
-      model: gemini/gemini-2.0-flash-exp
-      api_key: os.environ/GEMINI_API_KEY_2
-
-  - model_name: gemini-pro
-    litellm_params:
-      model: gemini/gemini-1.5-pro
-      api_key: os.environ/GEMINI_API_KEY_1
-
-  - model_name: gemini-pro
-    litellm_params:
-      model: gemini/gemini-1.5-pro
-      api_key: os.environ/GEMINI_API_KEY_2
+model_list: [] # Populated dynamically via LiteLLM Database & Admin API
 
 router_settings:
-  routing_strategy: usage-based-routing-v2 # Load-balances requests and auto-switches on rate-limit (429) errors
+  routing_strategy: usage-based-routing-v2
   num_retries: 3
   timeout: 30
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
