@@ -6,6 +6,14 @@
     }
   ],
   "env": {
-    "VERCEL_SUPPORT_LARGE_FUNCTIONS": "1"
+    "PRISMA_MIGRATION_ENGINE_BINARY": "/dev/null",
+    "PRISMA_INTROSPECTION_ENGINE_BINARY": "/dev/null",
+    "PRISMA_FMT_BINARY": "/dev/null",
+    "DISABLE_SCHEMA_UPDATE": "true"
+  },
+  "functions": {
+    "api/index.py": {
+      "excludeFiles": "**/migration-engine-* | **/introspection-engine-* | **/prisma-fmt-* | **/schema-engine-*"
+    }
   }
 }
