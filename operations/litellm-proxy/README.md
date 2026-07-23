@@ -11,23 +11,36 @@ operations/litellm-proxy/
 ├── config.yaml         # Clean config for dynamic DB model routing & admin auth
 ├── vercel.json         # Vercel serverless build and route rewrite configuration
 ├── requirements.txt    # litellm[proxy], mangum, uvicorn, fastapi, pyyaml
-└── README.md           # Setup instructions & dynamic model management guide
+└── README.md           # Setup instructions & database integration guide
 ```
 
-## 🔐 Dynamic Model & Key Management (Database Mode)
+## 🗄️ Database Hosting Options for LiteLLM Memory
 
-Rather than hardcoding provider credentials in `config.yaml` or static environment variables, models and API keys are stored dynamically in the LiteLLM database.
+LiteLLM Proxy uses a PostgreSQL database to store dynamic models, API keys, user virtual keys, and usage tracking. You have two main options:
 
-### 1. Environment Variables in Vercel
+### Option A: Vercel Postgres (Recommended - Built into Vercel)
+1. Go to your Vercel Project → **Storage** tab.
+2. Click **Create Database** → Select **Postgres (powered by Neon)**.
+3. Select the Free Hobby Tier and click **Create**.
+4. Vercel will automatically inject the `DATABASE_URL` environment variable into your deployment!
+
+### Option B: Supabase or Neon (Free Tier)
+1. Create a free PostgreSQL instance on [Supabase](https://supabase.com) or [Neon](https://neon.tech).
+2. Copy the connection string (e.g. `postgresql://postgres:...@db.xxx.supabase.co:5432/postgres`).
+3. Add `DATABASE_URL` to Vercel Project → **Settings** → **Environment Variables**.
+
+---
+
+## 🔐 Dynamic Model & Key Management
 
 Set the following environment variables in Vercel (`Settings` -> `Environment Variables`):
 
 - `LITELLM_MASTER_KEY`: Bearer token for master admin access (e.g., `sk-nebula-admin-key-2026`)
-- `DATABASE_URL`: (Optional) PostgreSQL database connection string (e.g. `postgresql://...`) for persisting dynamic models, virtual keys, and usage memory across restarts.
+- `DATABASE_URL`: PostgreSQL connection string from Vercel Postgres, Supabase, or Neon.
 
-### 2. Adding Models & API Keys Dynamically via Admin API
+### Adding Models & API Keys Dynamically via Admin API
 
-Once deployed, add new model endpoints with credentials dynamically using the `/model/new` endpoint:
+Once deployed with a connected database, add model endpoints with credentials dynamically using `/model/new`:
 
 ```bash
 curl -X POST https://<your-project>.vercel.app/model/new \
@@ -42,7 +55,7 @@ curl -X POST https://<your-project>.vercel.app/model/new \
   }'
 ```
 
-### 3. Generating Virtual Client Keys Dynamically
+### Generating Virtual Client Keys
 
 Generate scoped API keys for agents or subservices using `/key/generate`:
 
@@ -63,11 +76,3 @@ To validate `config.yaml` syntax locally:
 ```bash
 python -c "import yaml; yaml.safe_load(open('config.yaml'))"
 ```
-
-## 🌐 Deployment to Vercel
-
-1. Commit and push this directory to your GitHub repository main branch.
-2. In [Vercel Dashboard](https://vercel.com/dashboard), click **Add New... -> Project**.
-3. Import the repository and set **Root Directory** to `operations/litellm-proxy`.
-4. Set `LITELLM_MASTER_KEY` (and `DATABASE_URL` if using persistent DB memory).
-5. Deploy.
