@@ -131,6 +131,7 @@ export default {
         return new Response(
           JSON.stringify({
             status: "ok",
+            server_version: "0.1.0",
             runner: "cloudflare-worker",
             ecosystem: "langchain-langgraph-langsmith-neondb",
             database: env.DATABASE_URL ? "connected" : "missing",
@@ -142,6 +143,41 @@ export default {
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
+      }
+
+      // LangGraph Studio API Endpoints Compatibility
+      if (url.pathname === "/assistants" || url.pathname === "/assistants/search") {
+        return new Response(
+          JSON.stringify([
+            {
+              assistant_id: "agent",
+              graph_id: "agent",
+              config: {},
+              metadata: {},
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+          ]),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (url.pathname === "/threads" || url.pathname === "/threads/search") {
+        if (request.method === "POST" && url.pathname === "/threads") {
+          return new Response(
+            JSON.stringify({
+              thread_id: "thread-default",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              metadata: {},
+              status: "idle",
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        return new Response(JSON.stringify([]), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       if (url.pathname === "/drafts" && request.method === "GET") {
@@ -180,7 +216,11 @@ export default {
         );
       }
 
-      return new Response("Not Found", { status: 404, headers: corsHeaders });
+      // Always return valid JSON for 404s so Studio doesn't crash on "Not Found" string
+      return new Response(
+        JSON.stringify({ detail: "Not Found", status: 404 }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     } catch (err) {
       return new Response(
         JSON.stringify({ error: err.message, stack: err.stack }),
