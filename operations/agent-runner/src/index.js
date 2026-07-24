@@ -2,6 +2,14 @@ import { StateGraph, Annotation, END, START } from "@langchain/langgraph";
 import { ChatOpenAI } from "@langchain/openai";
 import { neon } from "@neondatabase/serverless";
 
+// Standard CORS headers for cross-origin browser tools (LangSmith Studio Web UI)
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "*",
+  "Access-Control-Allow-Credentials": "true",
+};
+
 // Define the Agent State Graph Annotations
 const AgentState = Annotation.Root({
   task: Annotation({
@@ -110,31 +118,43 @@ export default {
   },
 
   async fetch(request, env, ctx) {
+    // 1. Handle CORS preflight request
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders });
+    }
+
     try {
       const url = new URL(request.url);
 
-      if (url.pathname === "/" || url.pathname === "/health") {
+      // Root / Health / Info endpoints with full CORS & Studio metadata
+      if (url.pathname === "/" || url.pathname === "/health" || url.pathname === "/info" || url.pathname === "/ok") {
         return new Response(
           JSON.stringify({
-            status: "alive",
+            status: "ok",
             runner: "cloudflare-worker",
             ecosystem: "langchain-langgraph-langsmith-neondb",
             database: env.DATABASE_URL ? "connected" : "missing",
             tracing: env.LANGCHAIN_TRACING_V2 === "true" ? "active" : "disabled",
             project: env.LANGCHAIN_PROJECT || "none",
+            graphs: {
+              agent: "createAgentGraph",
+            },
           }),
-          { headers: { "Content-Type": "application/json" } }
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
       if (url.pathname === "/drafts" && request.method === "GET") {
         if (!env.DATABASE_URL) {
-          return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), { status: 500 });
+          return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
         }
         const sql = neon(env.DATABASE_URL);
         const rows = await sql`SELECT * FROM content_drafts ORDER BY created_at DESC LIMIT 10`;
         return new Response(JSON.stringify({ count: rows.length, drafts: rows }), {
-          headers: { "Content-Type": "application/json" },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
@@ -156,15 +176,15 @@ export default {
             plan: finalState.plan,
             output: finalState.output,
           }),
-          { headers: { "Content-Type": "application/json" } }
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      return new Response("Not Found", { status: 404 });
+      return new Response("Not Found", { status: 404, headers: corsHeaders });
     } catch (err) {
       return new Response(
         JSON.stringify({ error: err.message, stack: err.stack }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
   },
