@@ -202,6 +202,43 @@ export default {
         });
       }
 
+      // Knowledge Base Endpoints (Seeded Company Docs Retrieval)
+      if (url.pathname === "/knowledge" && request.method === "GET") {
+        if (!env.DATABASE_URL) {
+          return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), { status: 500, headers: corsHeaders });
+        }
+        const sql = neon(env.DATABASE_URL);
+        const categories = await sql`SELECT category, COUNT(*) as doc_count FROM knowledge_base GROUP BY category`;
+        const docs = await sql`SELECT id, category, doc_title, file_path, content_summary FROM knowledge_base ORDER BY id ASC LIMIT 50`;
+        return new Response(JSON.stringify({ total_docs: docs.length, categories, docs }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.pathname === "/knowledge/search" && request.method === "POST") {
+        if (!env.DATABASE_URL) {
+          return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), { status: 500, headers: corsHeaders });
+        }
+        const body = await request.json();
+        const category = body.category || "";
+        const query = body.query || "";
+        const sql = neon(env.DATABASE_URL);
+
+        let results = [];
+        if (category) {
+          results = await sql`SELECT id, category, doc_title, file_path, content_summary, full_content FROM knowledge_base WHERE category = ${category} LIMIT 5`;
+        } else if (query) {
+          const searchTerm = `%${query}%`;
+          results = await sql`SELECT id, category, doc_title, file_path, content_summary, full_content FROM knowledge_base WHERE doc_title ILIKE ${searchTerm} OR content_summary ILIKE ${searchTerm} LIMIT 5`;
+        } else {
+          results = await sql`SELECT id, category, doc_title, file_path, content_summary FROM knowledge_base LIMIT 10`;
+        }
+
+        return new Response(JSON.stringify({ count: results.length, results }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       if (url.pathname === "/drafts" && request.method === "GET") {
         if (!env.DATABASE_URL) {
           return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), {
