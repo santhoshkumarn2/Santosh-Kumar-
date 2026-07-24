@@ -21,8 +21,8 @@ async def list_models():
     return {
         "object": "list",
         "data": [
-            {"id": "groq-llama3-70b", "object": "model", "owned_by": "litellm"},
-            {"id": "gemini-flash", "object": "model", "owned_by": "litellm"},
+            {"id": "groq/llama-3.1-70b-versatile", "object": "model", "owned_by": "litellm"},
+            {"id": "gemini/gemini-1.5-flash", "object": "model", "owned_by": "litellm"},
             {"id": "gpt-4o", "object": "model", "owned_by": "litellm"},
             {"id": "claude-3-5-sonnet", "object": "model", "owned_by": "litellm"}
         ]
@@ -40,6 +40,15 @@ async def chat_completions(request: Request):
 
     try:
         body = await request.json()
+        model = body.get("model", "")
+
+        # Inject API keys from os.environ if not explicitly provided in request body
+        if "api_key" not in body:
+            if "gemini" in model and (os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")):
+                body["api_key"] = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+            elif "groq" in model and os.environ.get("GROQ_API_KEY"):
+                body["api_key"] = os.environ.get("GROQ_API_KEY")
+
         response = await litellm.acompletion(**body)
         return response
     except Exception as err:
