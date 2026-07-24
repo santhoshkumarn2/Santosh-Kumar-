@@ -30,7 +30,7 @@ function createAgentGraph(env) {
   const MASTER_KEY = env.LITELLM_MASTER_KEY || "sk-olympus-secret-2026";
 
   const plannerLLM = new ChatOpenAI({
-    modelName: "groq/llama-3.1-70b-versatile",
+    modelName: "groq/llama-3.3-70b-versatile",
     temperature: 0.5,
     configuration: {
       baseURL: GATEWAY_URL,
@@ -39,7 +39,7 @@ function createAgentGraph(env) {
   });
 
   const writerLLM = new ChatOpenAI({
-    modelName: "gemini/gemini-1.5-flash",
+    modelName: "groq/llama-3.3-70b-versatile",
     temperature: 0.7,
     configuration: {
       baseURL: GATEWAY_URL,
@@ -113,7 +113,6 @@ export default {
     try {
       const url = new URL(request.url);
 
-      // Root Health Endpoint
       if (url.pathname === "/" || url.pathname === "/health") {
         return new Response(
           JSON.stringify({
@@ -128,7 +127,6 @@ export default {
         );
       }
 
-      // Query persistent database content drafts
       if (url.pathname === "/drafts" && request.method === "GET") {
         if (!env.DATABASE_URL) {
           return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), { status: 500 });
@@ -140,7 +138,6 @@ export default {
         });
       }
 
-      // Trigger Agent Reasoning Task
       if (url.pathname === "/trigger" && request.method === "POST") {
         const body = await request.json();
         const task = body.task || "generate_content";
@@ -149,7 +146,6 @@ export default {
         const graph = createAgentGraph(env);
         const finalState = await graph.invoke({ task, topic });
 
-        // Asynchronously save agent output to Neon PostgreSQL
         ctx.waitUntil(saveDraftToPostgres(env, task, topic, finalState.plan, finalState.output));
 
         return new Response(
