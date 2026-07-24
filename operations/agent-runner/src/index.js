@@ -10,6 +10,19 @@ const corsHeaders = {
   "Access-Control-Allow-Credentials": "true",
 };
 
+// Polyfill and populate process.env for LangSmith tracing in Cloudflare Workers
+function setupLangSmithTracing(env) {
+  if (typeof globalThis.process === "undefined") {
+    globalThis.process = { env: {} };
+  }
+  if (!globalThis.process.env) {
+    globalThis.process.env = {};
+  }
+  if (env.LANGCHAIN_TRACING_V2) globalThis.process.env.LANGCHAIN_TRACING_V2 = env.LANGCHAIN_TRACING_V2;
+  if (env.LANGCHAIN_API_KEY) globalThis.process.env.LANGCHAIN_API_KEY = env.LANGCHAIN_API_KEY;
+  if (env.LANGCHAIN_PROJECT) globalThis.process.env.LANGCHAIN_PROJECT = env.LANGCHAIN_PROJECT;
+}
+
 // Define the Agent State Graph Annotations
 const AgentState = Annotation.Root({
   task: Annotation({
@@ -34,6 +47,7 @@ const AgentState = Annotation.Root({
  * Builds the LangGraph State Machine for Autonomous Agent Workflows
  */
 function createAgentGraph(env) {
+  setupLangSmithTracing(env);
   const GATEWAY_URL = env.LITELLM_GATEWAY_URL || "https://santosh-kumar-psi.vercel.app/v1";
   const MASTER_KEY = env.LITELLM_MASTER_KEY || "sk-olympus-secret-2026";
 
@@ -112,12 +126,15 @@ async function saveDraftToPostgres(env, task, topic, plan, draftContent) {
 
 export default {
   async scheduled(event, env, ctx) {
+    setupLangSmithTracing(env);
     const graph = createAgentGraph(env);
     const result = await graph.invoke({ task: "cron_scan", topic: "AI Agent Governance Gaps" });
     ctx.waitUntil(saveDraftToPostgres(env, "cron_scan", "AI Agent Governance Gaps", result.plan, result.output));
   },
 
   async fetch(request, env, ctx) {
+    setupLangSmithTracing(env);
+
     // 1. Handle CORS preflight request
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
