@@ -1,0 +1,19 @@
+{
+  "name": "olympus-agent-runner",
+  "version": "1.0.0",
+  "description": "24/7 Cloudflare Worker Agent Runner powered by LangGraph and LangSmith",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.38",
+    "@langchain/langgraph": "^0.2.45",
+    "@langchain/openai": "^0.4.2"
+  },
+  "devDependencies": {
+    "wrangler": "^3.100.0"
+  }
+}
