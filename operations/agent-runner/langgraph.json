@@ -1,7 +1,6 @@
 {
   "dependencies": ["."],
   "graphs": {
-    "agent": "./src/index.js:createAgentGraph"
-  },
-  "env": ".env"
+    "agent": "./src/index.js:agent"
+  }
 }

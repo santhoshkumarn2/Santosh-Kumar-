@@ -18,9 +18,9 @@ function setupLangSmithTracing(env) {
   if (!globalThis.process.env) {
     globalThis.process.env = {};
   }
-  if (env.LANGCHAIN_TRACING_V2) globalThis.process.env.LANGCHAIN_TRACING_V2 = env.LANGCHAIN_TRACING_V2;
-  if (env.LANGCHAIN_API_KEY) globalThis.process.env.LANGCHAIN_API_KEY = env.LANGCHAIN_API_KEY;
-  if (env.LANGCHAIN_PROJECT) globalThis.process.env.LANGCHAIN_PROJECT = env.LANGCHAIN_PROJECT;
+  if (env && env.LANGCHAIN_TRACING_V2) globalThis.process.env.LANGCHAIN_TRACING_V2 = env.LANGCHAIN_TRACING_V2;
+  if (env && env.LANGCHAIN_API_KEY) globalThis.process.env.LANGCHAIN_API_KEY = env.LANGCHAIN_API_KEY;
+  if (env && env.LANGCHAIN_PROJECT) globalThis.process.env.LANGCHAIN_PROJECT = env.LANGCHAIN_PROJECT;
 }
 
 // Define the Agent State Graph Annotations
@@ -46,7 +46,8 @@ const AgentState = Annotation.Root({
 /**
  * Builds the LangGraph State Machine for Autonomous Agent Workflows
  */
-function createAgentGraph(env) {
+export function createAgentGraph(env = {}) {
+  env = env || {};
   setupLangSmithTracing(env);
   const GATEWAY_URL = env.LITELLM_GATEWAY_URL || "https://santosh-kumar-psi.vercel.app/v1";
   const MASTER_KEY = env.LITELLM_MASTER_KEY || "sk-olympus-secret-2026";
@@ -107,11 +108,15 @@ function createAgentGraph(env) {
   return workflow.compile();
 }
 
+// Export compiled agent graph instance for LangGraph Studio CLI loader
+export const agent = createAgentGraph();
+export const graph = agent;
+
 /**
  * Saves execution output to persistent Neon PostgreSQL database
  */
 async function saveDraftToPostgres(env, task, topic, plan, draftContent) {
-  if (!env.DATABASE_URL) return;
+  if (!env || !env.DATABASE_URL) return;
   try {
     const sql = neon(env.DATABASE_URL);
     await sql`
