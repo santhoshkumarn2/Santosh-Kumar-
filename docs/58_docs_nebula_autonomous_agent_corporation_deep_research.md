@@ -1131,18 +1131,18 @@ Your Metric Aggregator agent compiles this dashboard every morning at 5:30 AM IS
 - [x] Deploy LiteLLM proxy on Vercel with multi-provider config
 - [x] Register 3-5 Google AI Studio API keys (separate projects)
 - [x] Register 2-3 Groq API keys
-- [x] Build the Budget Controller (pure logic, no LLM)
-- [x] Build the CEO Strategist agent with LangGraph
-- [x] Seed the Knowledge Base with all Project Olympus docs
+- [ ] Build the Budget Controller (pure logic, no LLM)
+- [ ] Build the CEO Strategist agent with LangGraph
+- [ ] Seed the Knowledge Base with all Project Olympus docs
 
 ### Phase 2: LinkedIn Engine (Week 3-4)
 - [ ] Build Gap Scanner agent (GitHub Issues + Reddit scraper)
-- [x] Build LinkedIn Post Writer agent with template system
-- [x] Build Policy Governor agent (content review)
+- [ ] Build LinkedIn Post Writer agent with template system
+- [ ] Build Policy Governor agent (content review)
 - [ ] Build Comment Engager agents (2-3 instances)
 - [ ] Set up LinkedIn automation infrastructure (cloud browser, residential IPs)
 - [ ] Build SDR agents (connection requests + DM sequences)
-- [x] Deploy Cloudflare Cron triggers for scheduling
+- [ ] Deploy Cloudflare Cron triggers for scheduling
 
 ### Phase 3: Sales & Content Pipeline (Week 5-6)
 - [ ] Build Lead Scorer agent with Qualification Matrix
