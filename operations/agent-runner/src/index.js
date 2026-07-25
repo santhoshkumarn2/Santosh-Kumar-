@@ -1,6 +1,7 @@
 import { StateGraph, Annotation, END, START } from "@langchain/langgraph";
 import { ChatOpenAI } from "@langchain/openai";
 import { neon } from "@neondatabase/serverless";
+import { createGapScannerGraph } from "./agents/gap_scanner.js";
 
 // Standard CORS headers for cross-origin browser tools (LangSmith Studio Web UI)
 const corsHeaders = {
@@ -18,9 +19,9 @@ function setupLangSmithTracing(env) {
   if (!globalThis.process.env) {
     globalThis.process.env = {};
   }
-  if (env && env.LANGCHAIN_TRACING_V2) globalThis.process.env.LANGCHAIN_TRACING_V2 = env.LANGCHAIN_TRACING_V2;
-  if (env && env.LANGCHAIN_API_KEY) globalThis.process.env.LANGCHAIN_API_KEY = env.LANGCHAIN_API_KEY;
-  if (env && env.LANGCHAIN_PROJECT) globalThis.process.env.LANGCHAIN_PROJECT = env.LANGCHAIN_PROJECT;
+  globalThis.process.env.LANGCHAIN_TRACING_V2 = (env && env.LANGCHAIN_TRACING_V2) || "true";
+  globalThis.process.env.LANGCHAIN_API_KEY = (env && env.LANGCHAIN_API_KEY) || "";
+  globalThis.process.env.LANGCHAIN_PROJECT = (env && env.LANGCHAIN_PROJECT) || "nebula-gap-scanner";
 }
 
 // Define the Agent State Graph Annotations
@@ -132,9 +133,9 @@ async function saveDraftToPostgres(env, task, topic, plan, draftContent) {
 export default {
   async scheduled(event, env, ctx) {
     setupLangSmithTracing(env);
-    const graph = createAgentGraph(env);
-    const result = await graph.invoke({ task: "cron_scan", topic: "AI Agent Governance Gaps" });
-    ctx.waitUntil(saveDraftToPostgres(env, "cron_scan", "AI Agent Governance Gaps", result.plan, result.output));
+    const gapGraph = createGapScannerGraph(env);
+    const result = await gapGraph.invoke({ pillar: "all", limit: 5 });
+    ctx.waitUntil(saveDraftToPostgres(env, "cron_gap_scan", "AI Agent Governance Gaps", result.formattedReport, JSON.stringify(result.gaps)));
   },
 
   async fetch(request, env, ctx) {
@@ -270,6 +271,28 @@ export default {
             database_persistence: "saved_to_neon",
             plan: finalState.plan,
             output: finalState.output,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // LinkedIn Gap Scanner API Endpoint (Agent 019)
+      if (url.pathname === "/linkedin/scan-gaps" && request.method === "POST") {
+        const body = await request.json().catch(() => ({}));
+        const pillar = body.pillar || "all";
+        const limit = body.limit || 5;
+
+        const gapGraph = createGapScannerGraph(env);
+        const finalState = await gapGraph.invoke({ pillar, limit });
+
+        return new Response(
+          JSON.stringify({
+            status: "success",
+            agent: "Agent 019: Gap Scanner",
+            pillar: pillar,
+            gaps_found: finalState.gaps.length,
+            gaps: finalState.gaps,
+            formatted_report: finalState.formattedReport,
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
