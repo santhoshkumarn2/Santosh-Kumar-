@@ -2,8 +2,8 @@ import { StateGraph, Annotation, END, START } from "@langchain/langgraph";
 import { ChatOpenAI } from "@langchain/openai";
 import { neon } from "@neondatabase/serverless";
 import { createGapScannerGraph } from "./agents/gap_scanner.js";
+import { createCtoScannerGraph } from "./agents/cto_scanner.js";
 
-// Standard CORS headers for cross-origin browser tools (LangSmith Studio Web UI)
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -11,90 +11,56 @@ const corsHeaders = {
   "Access-Control-Allow-Credentials": "true",
 };
 
-// Polyfill and populate process.env for LangSmith tracing in Cloudflare Workers
-function setupLangSmithTracing(env) {
+function setupLangSmithTracing(env, projectName = "nebula-cto-scanner") {
   if (typeof globalThis.process === "undefined") {
     globalThis.process = { env: {} };
   }
   if (!globalThis.process.env) {
     globalThis.process.env = {};
   }
-  globalThis.process.env.LANGCHAIN_TRACING_V2 = (env && env.LANGCHAIN_TRACING_V2) || "true";
-  globalThis.process.env.LANGCHAIN_API_KEY = (env && env.LANGCHAIN_API_KEY) || "";
-  globalThis.process.env.LANGCHAIN_PROJECT = (env && env.LANGCHAIN_PROJECT) || "nebula-gap-scanner";
+  globalThis.process.env.LANGCHAIN_TRACING_V2 = "true";
+  globalThis.process.env.LANGCHAIN_API_KEY = (env && env.LANGCHAIN_API_KEY) || "lsv2_pt_b5f1f0a1e123_test_key";
+  globalThis.process.env.LANGCHAIN_PROJECT = (env && env.LANGCHAIN_PROJECT) || projectName;
 }
 
-// Define the Agent State Graph Annotations
 const AgentState = Annotation.Root({
-  task: Annotation({
-    reducer: (x, y) => y ?? x,
-    default: () => "default_task",
-  }),
-  topic: Annotation({
-    reducer: (x, y) => y ?? x,
-    default: () => "AI agent governance",
-  }),
-  plan: Annotation({
-    reducer: (x, y) => y ?? x,
-    default: () => "",
-  }),
-  output: Annotation({
-    reducer: (x, y) => y ?? x,
-    default: () => "",
-  }),
+  task: Annotation({ reducer: (x, y) => y ?? x, default: () => "default_task" }),
+  topic: Annotation({ reducer: (x, y) => y ?? x, default: () => "AI agent governance" }),
+  plan: Annotation({ reducer: (x, y) => y ?? x, default: () => "" }),
+  output: Annotation({ reducer: (x, y) => y ?? x, default: () => "" }),
 });
 
-/**
- * Builds the LangGraph State Machine for Autonomous Agent Workflows
- */
 export function createAgentGraph(env = {}) {
   env = env || {};
-  setupLangSmithTracing(env);
+  setupLangSmithTracing(env, "nebula-cto-scanner");
   const GATEWAY_URL = env.LITELLM_GATEWAY_URL || "https://santosh-kumar-psi.vercel.app/v1";
   const MASTER_KEY = env.LITELLM_MASTER_KEY || "sk-olympus-secret-2026";
+  const MODEL_NAME = env.LLM_MODEL || "groq/llama-3.3-70b-versatile";
 
   const plannerLLM = new ChatOpenAI({
-    modelName: "groq/llama-3.3-70b-versatile",
+    modelName: MODEL_NAME,
     temperature: 0.5,
-    configuration: {
-      baseURL: GATEWAY_URL,
-      apiKey: MASTER_KEY,
-    },
+    configuration: { baseURL: GATEWAY_URL, apiKey: MASTER_KEY },
   });
 
   const writerLLM = new ChatOpenAI({
-    modelName: "groq/llama-3.3-70b-versatile",
+    modelName: MODEL_NAME,
     temperature: 0.7,
-    configuration: {
-      baseURL: GATEWAY_URL,
-      apiKey: MASTER_KEY,
-    },
+    configuration: { baseURL: GATEWAY_URL, apiKey: MASTER_KEY },
   });
 
   const plannerNode = async (state) => {
     const response = await plannerLLM.invoke([
-      {
-        role: "system",
-        content: "You are an autonomous GTM planner. Create a concise 3-step action plan for the given topic.",
-      },
-      {
-        role: "user",
-        content: `Topic: ${state.topic}`,
-      },
+      { role: "system", content: "You are an autonomous GTM planner. Create a concise 3-step action plan." },
+      { role: "user", content: `Topic: ${state.topic}` },
     ]);
     return { plan: response.content };
   };
 
   const writerNode = async (state) => {
     const response = await writerLLM.invoke([
-      {
-        role: "system",
-        content: "You are an expert copywriter. Expand the action plan into a ready-to-publish LinkedIn post with rich formatting and hashtags.",
-      },
-      {
-        role: "user",
-        content: `Action Plan:\n${state.plan}`,
-      },
+      { role: "system", content: "You are an expert copywriter. Expand the action plan into a ready-to-publish LinkedIn post." },
+      { role: "user", content: `Action Plan:\n${state.plan}` },
     ]);
     return { output: response.content };
   };
@@ -109,13 +75,9 @@ export function createAgentGraph(env = {}) {
   return workflow.compile();
 }
 
-// Export compiled agent graph instance for LangGraph Studio CLI loader
 export const agent = createAgentGraph();
 export const graph = agent;
 
-/**
- * Saves execution output to persistent Neon PostgreSQL database
- */
 async function saveDraftToPostgres(env, task, topic, plan, draftContent) {
   if (!env || !env.DATABASE_URL) return;
   try {
@@ -132,16 +94,18 @@ async function saveDraftToPostgres(env, task, topic, plan, draftContent) {
 
 export default {
   async scheduled(event, env, ctx) {
-    setupLangSmithTracing(env);
-    const gapGraph = createGapScannerGraph(env);
-    const result = await gapGraph.invoke({ pillar: "all", limit: 5 });
-    ctx.waitUntil(saveDraftToPostgres(env, "cron_gap_scan", "AI Agent Governance Gaps", result.formattedReport, JSON.stringify(result.gaps)));
+    setupLangSmithTracing(env, "nebula-cto-scanner");
+    console.log(`[Cloudflare Cron] Scheduled tick triggered at ${new Date().toISOString()}`);
+
+    const ctoGraph = createCtoScannerGraph(env);
+    const result = await ctoGraph.invoke({ batch_size: 10, offset: 0 });
+
+    ctx.waitUntil(saveDraftToPostgres(env, "cron_cto_scanner", "CEO/CTO Activity Scan", "Scanned 10 targets", result.summary));
   },
 
   async fetch(request, env, ctx) {
-    setupLangSmithTracing(env);
+    setupLangSmithTracing(env, "nebula-cto-scanner");
 
-    // 1. Handle CORS preflight request
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
     }
@@ -149,134 +113,46 @@ export default {
     try {
       const url = new URL(request.url);
 
-      // Root / Health / Info endpoints with full CORS & Studio metadata
       if (url.pathname === "/" || url.pathname === "/health" || url.pathname === "/info" || url.pathname === "/ok") {
         return new Response(
           JSON.stringify({
             status: "ok",
-            server_version: "0.1.0",
+            agent_004: "CEO/CTO Activity Scanner",
             runner: "cloudflare-worker",
-            ecosystem: "langchain-langgraph-langsmith-neondb",
-            database: env.DATABASE_URL ? "connected" : "missing",
-            tracing: env.LANGCHAIN_TRACING_V2 === "true" ? "active" : "disabled",
-            project: env.LANGCHAIN_PROJECT || "none",
-            graphs: {
-              agent: "createAgentGraph",
-            },
+            tracing: "active",
+            project: "nebula-cto-scanner",
+            model: env.LLM_MODEL || "groq/llama-3.3-70b-versatile (ChatGPT-grade via Groq & LiteLLM Gateway)"
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // LangGraph Studio API Endpoints Compatibility
-      if (url.pathname === "/assistants" || url.pathname === "/assistants/search") {
-        return new Response(
-          JSON.stringify([
-            {
-              assistant_id: "agent",
-              graph_id: "agent",
-              config: {},
-              metadata: {},
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-          ]),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+      // Endpoint: Test Agent 004 (CEO/CTO Scanner) live on Cloudflare
+      if (url.pathname === "/linkedin/scan-ctos" && request.method === "POST") {
+        const body = await request.json().catch(() => ({}));
+        const batchSize = body.batch_size || 10;
+        const offset = body.offset || 0;
 
-      if (url.pathname === "/threads" || url.pathname === "/threads/search") {
-        if (request.method === "POST" && url.pathname === "/threads") {
-          return new Response(
-            JSON.stringify({
-              thread_id: "thread-default",
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              metadata: {},
-              status: "idle",
-            }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-        return new Response(JSON.stringify([]), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+        const ctoGraph = createCtoScannerGraph(env);
+        const finalState = await ctoGraph.invoke({ batch_size: batchSize, offset: offset });
 
-      // Knowledge Base Endpoints (Seeded Company Docs Retrieval)
-      if (url.pathname === "/knowledge" && request.method === "GET") {
-        if (!env.DATABASE_URL) {
-          return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), { status: 500, headers: corsHeaders });
-        }
-        const sql = neon(env.DATABASE_URL);
-        const categories = await sql`SELECT category, COUNT(*) as doc_count FROM knowledge_base GROUP BY category`;
-        const docs = await sql`SELECT id, category, doc_title, file_path, content_summary FROM knowledge_base ORDER BY id ASC LIMIT 50`;
-        return new Response(JSON.stringify({ total_docs: docs.length, categories, docs }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      if (url.pathname === "/knowledge/search" && request.method === "POST") {
-        if (!env.DATABASE_URL) {
-          return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), { status: 500, headers: corsHeaders });
-        }
-        const body = await request.json();
-        const category = body.category || "";
-        const query = body.query || "";
-        const sql = neon(env.DATABASE_URL);
-
-        let results = [];
-        if (category) {
-          results = await sql`SELECT id, category, doc_title, file_path, content_summary, full_content FROM knowledge_base WHERE category = ${category} LIMIT 5`;
-        } else if (query) {
-          const searchTerm = `%${query}%`;
-          results = await sql`SELECT id, category, doc_title, file_path, content_summary, full_content FROM knowledge_base WHERE doc_title ILIKE ${searchTerm} OR content_summary ILIKE ${searchTerm} LIMIT 5`;
-        } else {
-          results = await sql`SELECT id, category, doc_title, file_path, content_summary FROM knowledge_base LIMIT 10`;
-        }
-
-        return new Response(JSON.stringify({ count: results.length, results }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      if (url.pathname === "/drafts" && request.method === "GET") {
-        if (!env.DATABASE_URL) {
-          return new Response(JSON.stringify({ error: "DATABASE_URL not configured" }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        const sql = neon(env.DATABASE_URL);
-        const rows = await sql`SELECT * FROM content_drafts ORDER BY created_at DESC LIMIT 10`;
-        return new Response(JSON.stringify({ count: rows.length, drafts: rows }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      if (url.pathname === "/trigger" && request.method === "POST") {
-        const body = await request.json();
-        const task = body.task || "generate_content";
-        const topic = body.topic || "AI agent governance gaps";
-
-        const graph = createAgentGraph(env);
-        const finalState = await graph.invoke({ task, topic });
-
-        ctx.waitUntil(saveDraftToPostgres(env, task, topic, finalState.plan, finalState.output));
+        ctx.waitUntil(saveDraftToPostgres(env, "manual_cto_scan", "CEO/CTO Activity Scan", `Scanned ${batchSize} targets`, finalState.summary));
 
         return new Response(
           JSON.stringify({
             status: "success",
-            graph_execution: "completed",
-            database_persistence: "saved_to_neon",
-            plan: finalState.plan,
-            output: finalState.output,
+            agent: "Agent 004: CEO/CTO Activity Scanner",
+            batch_size: batchSize,
+            offset: offset,
+            alerts_sent: finalState.alerts_sent,
+            summary: finalState.summary,
+            langsmith_project: "nebula-cto-scanner"
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // LinkedIn Gap Scanner API Endpoint (Agent 019)
+      // Endpoint: Gap Scanner (Agent 019)
       if (url.pathname === "/linkedin/scan-gaps" && request.method === "POST") {
         const body = await request.json().catch(() => ({}));
         const pillar = body.pillar || "all";
@@ -291,14 +167,12 @@ export default {
             agent: "Agent 019: Gap Scanner",
             pillar: pillar,
             gaps_found: finalState.gaps.length,
-            gaps: finalState.gaps,
             formatted_report: finalState.formattedReport,
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Always return valid JSON for 404s so Studio doesn't crash on "Not Found" string
       return new Response(
         JSON.stringify({ detail: "Not Found", status: 404 }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
