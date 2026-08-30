@@ -23,8 +23,12 @@ function buildSphere(latBands: number, lonBands: number): Point[] {
   return pts;
 }
 
-export function DottedGlobe({ size = 260 }: { size?: number }) {
-  const points = useMemo(() => buildSphere(22, 44), []);
+export function DottedGlobe({ size = 260, density = 1 }: { size?: number; density?: number }) {
+  // On mobile we pass density < 1 — fewer dots keeps the per-frame DOM loop cheap.
+  const points = useMemo(
+    () => buildSphere(Math.max(8, Math.round(22 * density)), Math.max(16, Math.round(44 * density))),
+    [density],
+  );
   const circlesRef = useRef<(SVGCircleElement | null)[]>([]);
   const [mounted, setMounted] = useState(false);
 

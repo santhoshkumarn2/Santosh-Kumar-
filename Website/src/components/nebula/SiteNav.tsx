@@ -24,6 +24,7 @@ function scrollToId(id: string) {
 
 export function SiteNav() {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const detect = () => {
@@ -34,8 +35,10 @@ export function SiteNav() {
         const el = document.getElementById(id);
         if (!el) continue;
         const rect = el.getBoundingClientRect();
-        // distance from section vertical center to viewport center
-        const center = rect.top + rect.height / 2;
+        // distance from the visible part of the section to the viewport center
+        const top = Math.max(rect.top, 0);
+        const bottom = Math.min(rect.bottom, window.innerHeight);
+        const center = bottom > top ? (top + bottom) / 2 : rect.top + rect.height / 2;
         const d = Math.abs(center - mid);
         if (d < bestDist) {
           bestDist = d;
@@ -56,12 +59,21 @@ export function SiteNav() {
 
   const isActive = (group: string[]) => activeId != null && group.includes(activeId);
 
+  const go = (id: string) => {
+    setOpen(false);
+    // let the menu close before scrolling
+    setTimeout(() => scrollToId(id), 60);
+  };
+
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-md">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6 md:px-10">
+      <nav className="mx-auto grid h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-6 sm:flex sm:justify-between md:px-10">
         <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="cursor-pointer font-display text-sm tracking-[0.25em] uppercase text-foreground"
+          onClick={() => {
+            setOpen(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className="cursor-pointer truncate text-left font-display text-sm tracking-[0.25em] uppercase text-foreground"
         >
           Nebula
         </button>
@@ -86,7 +98,7 @@ export function SiteNav() {
         <button
           onClick={() => scrollToId("contact")}
           className={
-            "cursor-pointer rounded-full border px-4 py-1.5 font-display text-sm tracking-tight transition-colors " +
+            "hidden cursor-pointer rounded-full border px-4 py-1.5 font-display text-sm tracking-tight transition-colors sm:inline-block " +
             (activeId === "contact"
               ? "border-neon bg-neon/15 text-neon font-semibold"
               : "border-neon/50 text-neon hover:bg-neon/10")
@@ -94,7 +106,63 @@ export function SiteNav() {
         >
           Early Access
         </button>
+
+        {/* mobile toggle */}
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          className="flex h-10 w-10 shrink-0 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-border/70 sm:hidden"
+        >
+          <span
+            className={
+              "h-px w-5 bg-foreground transition-transform " + (open ? "translate-y-[3.5px] rotate-45" : "")
+            }
+          />
+          <span
+            className={
+              "h-px w-5 bg-foreground transition-transform " + (open ? "-translate-y-[3.5px] -rotate-45" : "")
+            }
+          />
+        </button>
       </nav>
+
+      {/* mobile menu */}
+      <div
+        className={
+          "overflow-hidden border-t border-border/60 bg-background/95 backdrop-blur-md transition-[max-height,opacity] duration-300 sm:hidden " +
+          (open ? "max-h-80 opacity-100" : "max-h-0 opacity-0")
+        }
+      >
+        <div className="flex flex-col px-6 py-2">
+          {NAV_LINKS.map((l) => (
+            <button
+              key={l.target}
+              onClick={() => go(l.target)}
+              className={
+                "cursor-pointer py-3 text-left font-display text-base tracking-tight transition-colors " +
+                (isActive(l.group)
+                  ? "font-semibold text-foreground"
+                  : "font-normal text-muted-foreground")
+              }
+            >
+              {l.label}
+            </button>
+          ))}
+          <button
+            onClick={() => go("contact")}
+            className={
+              "my-3 cursor-pointer rounded-full border px-4 py-2 font-display text-base tracking-tight transition-colors " +
+              (activeId === "contact"
+                ? "border-neon bg-neon/15 text-neon font-semibold"
+                : "border-neon/50 text-neon")
+            }
+          >
+            Early Access
+          </button>
+        </div>
+      </div>
     </header>
   );
 }
+

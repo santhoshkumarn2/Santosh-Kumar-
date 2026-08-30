@@ -64,6 +64,7 @@ function HeroPage() {
 
   useEffect(() => {
     if (reduce) return;
+    const small = window.innerWidth < 768;
     const measure = () => {
       const label = labelHomeRef.current;
       const introEl = introTextRef.current;
@@ -79,8 +80,9 @@ function HeroPage() {
     };
     measure();
     document.fonts?.ready.then(measure).catch(() => {});
-    const t1 = setTimeout(() => setPhase("move"), 1500);
-    const t2 = setTimeout(() => setPhase("done"), 2900);
+    // Mobile: much quicker intro so the site feels snappy and light.
+    const t1 = setTimeout(() => setPhase("move"), small ? 500 : 1500);
+    const t2 = setTimeout(() => setPhase("done"), small ? 1300 : 2900);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -179,7 +181,10 @@ function HeroPage() {
       return true;
     };
 
+    const isSmall = () => window.innerWidth < 768;
+
     const onWheel = (e: WheelEvent) => {
+      if (isSmall()) return; // mobile: natural scrolling, no slide snapping
       if (window.scrollY > 2) {
         e.preventDefault();
         snap(e.deltaY > 0 ? 1 : -1);
@@ -206,6 +211,7 @@ function HeroPage() {
       touchYRef.current = e.touches[0]?.clientY ?? null;
     };
     const onTouchMove = (e: TouchEvent) => {
+      if (isSmall()) return; // mobile: fully natural scrolling, no gesture hijacking
       if (touchYRef.current === null) return;
       if (window.scrollY > 2) {
         const dy = touchYRef.current - (e.touches[0]?.clientY ?? touchYRef.current);
@@ -230,6 +236,7 @@ function HeroPage() {
         driveGlobe(delta * 0.005);
       }
     };
+
 
 
     // When the user scrolls back up to the hero from page 2, play the reverse:
@@ -262,7 +269,7 @@ function HeroPage() {
   const gScale = useTransform(p, [0, 1], [1, isMobile ? 6 : 9]);
   const gOpacity = useTransform(p, [0, 0.78, 0.99], [1, 1, 0]);
 
-  const copyDelay = phase === "done" ? 0 : 2.6;
+  const copyDelay = phase === "done" ? 0 : isMobile ? 1.1 : 2.6;
 
   return (
     <main className="bg-background text-foreground">
@@ -273,11 +280,15 @@ function HeroPage() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-background"
           initial={{ opacity: 1 }}
           animate={{ opacity: phase === "move" ? 0 : 1 }}
-          transition={{ duration: 0.6, delay: phase === "move" ? 1.15 : 0, ease: "easeInOut" }}
+          transition={{
+            duration: isMobile ? 0.3 : 0.6,
+            delay: phase === "move" ? (isMobile ? 0.55 : 1.15) : 0,
+            ease: "easeInOut",
+          }}
         >
           <motion.div
             ref={introTextRef}
-            className="whitespace-nowrap px-6 text-center font-display text-3xl tracking-tight sm:text-5xl md:text-6xl"
+            className="max-w-full whitespace-normal px-6 text-center font-display text-2xl leading-snug tracking-tight sm:whitespace-nowrap sm:text-5xl md:text-6xl"
             initial={{ opacity: 0, x: 0, y: 0, scale: 1 }}
             animate={
               phase === "center"
@@ -286,8 +297,8 @@ function HeroPage() {
             }
             transition={
               phase === "center"
-                ? { duration: 0.6, ease: "easeOut" }
-                : { duration: 1.15, ease: [0.76, 0, 0.24, 1] }
+                ? { duration: isMobile ? 0.35 : 0.6, ease: "easeOut" }
+                : { duration: isMobile ? 0.6 : 1.15, ease: [0.76, 0, 0.24, 1] }
             }
           >
             Welcome to the world of <span className="text-accent">Agents</span>
@@ -332,6 +343,10 @@ function HeroPage() {
               <motion.button
                 type="button"
                 onClick={() => {
+                  if (isMobile) {
+                    goToProblem();
+                    return;
+                  }
                   targetRef.current = 1;
                   finishingRef.current = true;
                   animate(p, 1, {
@@ -364,7 +379,7 @@ function HeroPage() {
               transition={{ duration: 1, delay: copyDelay - 0.2 < 0 ? 0 : copyDelay - 0.2 }}
             >
               <motion.div id="globe-home" style={{ x: gx, y: gy, scale: gScale, opacity: gOpacity }}>
-                <DottedGlobe size={isMobile ? 180 : 280} />
+                <DottedGlobe size={isMobile ? 180 : 280} density={isMobile ? 0.55 : 1} />
               </motion.div>
               <div
                 ref={labelHomeRef}
