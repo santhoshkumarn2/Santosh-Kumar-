@@ -1,0 +1,258 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-neon: var(--neon);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.145 0.008 265);
+  --foreground: oklch(0.975 0.004 265);
+  --card: oklch(0.185 0.01 265);
+  --card-foreground: oklch(0.975 0.004 265);
+  --popover: oklch(0.185 0.01 265);
+  --popover-foreground: oklch(0.975 0.004 265);
+  --primary: oklch(0.975 0.004 265);
+  --primary-foreground: oklch(0.145 0.008 265);
+  --secondary: oklch(0.24 0.012 265);
+  --secondary-foreground: oklch(0.975 0.004 265);
+  --muted: oklch(0.24 0.012 265);
+  --muted-foreground: oklch(0.66 0.014 265);
+  --accent: oklch(0.74 0.13 288);
+  --accent-foreground: oklch(0.145 0.008 265);
+  --neon: oklch(0.88 0.24 145);
+  --destructive: oklch(0.63 0.22 25);
+  --destructive-foreground: oklch(0.975 0.004 265);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.74 0.13 288);
+  --chart-1: oklch(0.74 0.13 288);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.185 0.01 265);
+  --sidebar-foreground: oklch(0.975 0.004 265);
+  --sidebar-primary: oklch(0.74 0.13 288);
+  --sidebar-primary-foreground: oklch(0.145 0.008 265);
+  --sidebar-accent: oklch(0.24 0.012 265);
+  --sidebar-accent-foreground: oklch(0.975 0.004 265);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.74 0.13 288);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+
+.dark {
+  --background: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.208 0.042 265.755);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.929 0.013 255.508);
+  --primary-foreground: oklch(0.208 0.042 265.755);
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.279 0.041 260.031);
+  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ---- Problem section animations ---- */
+
+/* banknotes tossed out of the wallet: arc up, tumble, fall into the shredder/meter */
+@keyframes bill-fly {
+  0%   { opacity: 0; transform: translate(50px, 52px) rotate(-8deg) scale(0.85); }
+  8%   { opacity: 1; }
+  30%  { transform: translate(92px, 30px) rotate(14deg) scale(1); }
+  55%  { transform: translate(134px, 26px) rotate(-10deg) scale(1); }
+  80%  { transform: translate(182px, 46px) rotate(18deg) scale(0.95); }
+  95%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(218px, 70px) rotate(34deg) scale(0.55); }
+}
+.bill-fly { animation: bill-fly 3s cubic-bezier(0.4, 0.05, 0.4, 1) infinite; }
+
+/* flames licking up over the money pit */
+@keyframes flame-lick {
+  0%, 100% { transform: scaleY(0.65) translateY(2px); opacity: 0.55; }
+  35%      { transform: scaleY(1.15) translateY(-3px); opacity: 0.95; }
+  62%      { transform: scaleY(0.85) translateY(0px); opacity: 0.75; }
+}
+.flame-lick { transform-origin: bottom center; animation: flame-lick 1.3s ease-in-out infinite; }
+
+/* the meter needle jitters upward as spend racks up */
+@keyframes meter-climb {
+  0%   { transform: rotate(-52deg); }
+  22%  { transform: rotate(-30deg); }
+  40%  { transform: rotate(-36deg); }
+  63%  { transform: rotate(2deg); }
+  78%  { transform: rotate(-6deg); }
+  90%  { transform: rotate(46deg); }
+  100% { transform: rotate(-52deg); }
+}
+.meter-climb { transform-origin: 50% 100%; animation: meter-climb 4.2s cubic-bezier(0.6, 0, 0.35, 1) infinite; }
+
+/* data blobs travelling down the cable into the third-party racks */
+@keyframes wire-data {
+  0%   { opacity: 0; transform: translate(62px, 64px) scale(0.5); }
+  10%  { opacity: 1; transform: translate(80px, 62px) scale(1); }
+  38%  { transform: translate(112px, 62px) scale(1); }
+  62%  { transform: translate(142px, 69px) scale(1); }
+  88%  { opacity: 1; transform: translate(178px, 66px) scale(0.9); }
+  100% { opacity: 0; transform: translate(196px, 62px) scale(0.4); }
+}
+.wire-data { animation: wire-data 2.6s cubic-bezier(0.35, 0.5, 0.4, 1) infinite; }
+
+/* rack status LEDs blinking irregularly as they ingest */
+@keyframes led-blink {
+  0%, 42%, 100% { opacity: 0.25; }
+  46%, 58%      { opacity: 1; }
+  70%           { opacity: 0.4; }
+  84%           { opacity: 0.9; }
+}
+.led-blink { animation: led-blink 1.9s steps(1, end) infinite; }
+
+/* disk fill bar on the third-party server */
+@keyframes disk-fill {
+  0%   { transform: scaleX(0.08); }
+  40%  { transform: scaleX(0.42); }
+  68%  { transform: scaleX(0.61); }
+  92%  { transform: scaleX(0.97); }
+  100% { transform: scaleX(0.08); }
+}
+.disk-fill { transform-origin: left center; animation: disk-fill 5s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+
+/* the no-entry sign sways on its pole and flashes weakly - ignored anyway */
+@keyframes sign-sway {
+  0%, 100% { transform: rotate(-1.6deg); }
+  30%      { transform: rotate(1.4deg); }
+  62%      { transform: rotate(-0.6deg); }
+}
+.sign-sway { transform-origin: 50% 100%; animation: sign-sway 4.4s ease-in-out infinite; }
+
+@keyframes sign-flash {
+  0%, 60%, 100% { opacity: 1; }
+  66%           { opacity: 0.35; }
+  72%           { opacity: 0.9; }
+}
+.sign-flash { animation: sign-flash 3.1s ease-in-out infinite; }
+
+/* trucks driving straight past the restriction, bouncing on the road */
+@keyframes truck-drive {
+  0%   { opacity: 0; transform: translate(-40px, 0); }
+  8%   { opacity: 1; }
+  25%  { transform: translate(30px, -1px); }
+  50%  { transform: translate(90px, 0.5px); }
+  75%  { transform: translate(150px, -1px); }
+  92%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(210px, 0); }
+}
+.truck-drive { animation: truck-drive 4.4s linear infinite; }
+
+@keyframes wheel-spin { to { transform: rotate(360deg); } }
+.wheel-spin { animation: wheel-spin 0.7s linear infinite; transform-box: fill-box; transform-origin: center; }
+
+/* dashed road markings sliding by */
+@keyframes road-scroll { to { stroke-dashoffset: -28; } }
+.road-scroll { animation: road-scroll 0.9s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bill-fly, .flame-lick, .meter-climb, .wire-data, .led-blink, .disk-fill,
+  .sign-sway, .sign-flash, .truck-drive, .wheel-spin, .road-scroll {
+    animation: none;
+  }
+}

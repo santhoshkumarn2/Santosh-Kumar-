@@ -1,0 +1,40 @@
+﻿# Project Nebula: Full System Architecture & AI Agent Governance Documentation
+
+## Overview
+Project Nebula is an enterprise-grade, 100% self-hosted real-time AI agent interception and pre-execution cost control engine. Frequently referred to as the " Cloudflare for AI Agents\, Nebula establishes an on-premise security and governance perimeter between enterprise application clients and upstream/local Large Language Models.
+
+Unlike post-hoc observability platforms (e.g. Langfuse, LangSmith, Arize) that report on agent failures and cost blowouts after execution terminates, Nebula intercepts execution mid-flight at sub-5ms latency, deterministically blocking non-compliant tool executions, bounding runaway token spend before API requests depart, and enforcing regulatory standards (EU AI Act Article 14, HIPAA, SOC 2).
+
+## Core Problems Solved
+1. **Unpredictable Costs & Runaway Loops**: Autonomous agent loops frequently loop recursively, consuming 3x to 5x expected tokens without achieving convergence. Nebula computes pre-execution payload weights and halts or reroutes calls exceeding budgetary boundaries.
+2. **Zero In-Flight Policy Enforcement**: LLMs are inherently non-deterministic. System prompts and guidelines cannot guarantee adherence to corporate compliance. Nebula acts as a deterministic proxy enforcing hard code-level execution gates on every tool invocation.
+3. **Enterprise Data Sovereignty**: Transmitting proprietary internal codebases, documents, and PII to public third-party SaaS observability endpoints introduces severe security compliance risks. Nebula is 100% self-hosted on your bare-metal or private cloud VPC with zero external telemetry.
+
+## Technical Solutions
+### Solution 1: Mid-Way Trajectory Interception
+- **Latency**: < 5ms P99 latency overhead
+- **Mechanism**: Dynamic stream proxying and state-graph interception. Tool calls, arguments, and intermediate chain-of-thought outputs are inspected synchronously before execution is committed to databases or external APIs.
+- **Differentiator**: Intercepts active state transitions instead of logging historical traces.
+
+### Solution 2: Pre-Execution Cost Predictor
+- **Algorithm**: Multi-variable resource weight matrix analyzing input context length, active tool cardinality, target model pricing, and historical recursion probability.
+- **Action**: Dynamically downscales models (e.g. GPT-4o to Llama-3.3-70B/Groq) or terminates execution before expensive tokens fire.
+
+### Solution 3: Strict Regulatory Policy Layer
+- **Mandates Supported**: EU AI Act Article 14 (high-risk autonomous oversight), SOC 2 Type II, HIPAA Safe Harbor.
+- **Policy Engine**: Declarative YAML/JSON rule evaluation against tool argument payloads, regex PII detection, and deterministic allowlists.
+
+### Solution 4: Self-Updating Playbooks
+- **Mechanism**: Continuous feedback loop. Validated execution outcomes reinforce playbook operational paths. Error traces automatically synthesize runtime guardrails for subsequent cycles.
+
+### Solution 5: 100% Self-Hosted & Air-Gapped
+- **Deployment**: Docker Compose, Kubernetes Helm Charts, Linux systemd service.
+- **Zero External Telemetry**: Runs in air-gapped environments without dependency on external third-party cloud analytics.
+
+## Canonical URLs & Resources
+- Website: https://projectnebula.site
+- Trajectory Interception: https://projectnebula.site/#solution-1
+- Cost Control: https://projectnebula.site/#solution-2
+- Policy Enforcement: https://projectnebula.site/#solution-3
+- Playbooks: https://projectnebula.site/#solution-4
+- Self-Hosted Architecture: https://projectnebula.site/#solution-5

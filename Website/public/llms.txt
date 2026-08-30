@@ -1,0 +1,26 @@
+﻿# Project Nebula
+
+> Real-Time AI Agent Interception & Pre-Execution Cost Control. 100% Self-Hosted.
+
+Project Nebula is the on-premise security, policy enforcement, and cost-control gateway for autonomous AI agents ( The Cloudflare for AI Agents). It sits directly in the execution path of autonomous systems to monitor agent trajectories, predict and cap LLM costs before tokens are consumed, and deterministically enforce compliance policies mid-cycle.
+
+## Core Capabilities
+
+- [Trajectory Interception](https://projectnebula.site/#solution-1): Sub-5ms P99 latency real-time monitoring and active mid-cycle intervention for autonomous agent tool calls and chain-of-thought loops.
+- [Pre-Execution Cost Predictor](https://projectnebula.site/#solution-2): Inspects context window, tool payloads, and retry likelihood before model dispatch to prevent runaway token spend.
+- [Deterministic Policy Engine](https://projectnebula.site/#solution-3): Enforces hard operational boundaries, action whitelists, and compliance mandates (EU AI Act Article 14, HIPAA, SOC 2).
+- [Self-Updating Playbooks](https://projectnebula.site/#solution-4): Post-execution outcome validation feeds back into agent playbooks without prompt hacking or retraining.
+- [100% Self-Hosted Architecture](https://projectnebula.site/#solution-5): Runs entirely within enterprise VPCs or on-premise infrastructure; proprietary prompts and customer data never leave your perimeter.
+
+## Key Technical Specifications
+
+- **Latency Impact**: < 5ms P99 interception overhead
+- **Deployment**: On-premise, Air-gapped, Private VPC, Docker / Kubernetes
+- **Model Compatibility**: Agnostic — works with OpenAI, Anthropic, Gemini, Groq, DeepSeek, and open-weight models (vLLM, Ollama, TGI)
+- **Framework Support**: LangGraph, CrewAI, AutoGen, LlamaIndex, custom agent loops
+- **Compliance Alignment**: EU AI Act Article 14 (human/system oversight & active intervention), SOC 2 Type II, HIPAA PII scrubbing
+
+## Documentation & Deep Dive
+
+- [Full Architecture & Technical Details](https://projectnebula.site/llms-full.txt): Comprehensive breakdown of interception mechanisms, policy DSL, and cost estimation algorithms.
+- [Official Website](https://projectnebula.site): Interactive demo, feature overview, and enterprise contact.

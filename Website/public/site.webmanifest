@@ -1,0 +1,16 @@
+{
+  "name": "Project Nebula",
+  "short_name": "Nebula",
+  "description": "Real-Time AI Agent Interception & Pre-Execution Cost Control",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090A0F",
+  "theme_color": "#00F0FF",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
