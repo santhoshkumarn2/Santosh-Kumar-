@@ -86,7 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "keywords",
         content:
-          "AI agents, agent governance, LLM security, AI cost control, EU AI Act Article 14, agent interception, self-hosted AI gateway, Cloudflare for AI agents, LangGraph, CrewAI",
+          "AI agents, agent governance, LLM security, AI cost control, EU AI Act Article 14, agent interception, self-hosted AI gateway, Cloudflare for AI agents, LangGraph, CrewAI, AI agent runtime security, OWASP LLM Top 10, MCP security, MCP server governance, agentic AI compliance, LLM inference cost optimization, AI gateway self-hosted, autonomous agent sandbox, agent policy enforcement",
       },
       { name: "author", content: "Project Nebula" },
       {
@@ -102,6 +102,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://projectnebula.site" },
+      { property: "og:image", content: "https://projectnebula.site/og-image.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Project Nebula — Real-Time AI Agent Interception & Pre-Execution Cost Control" },
       { property: "og:site_name", content: "Project Nebula" },
       { property: "og:locale", content: "en_US" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -114,6 +118,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Real-time AI agent interception & pre-execution cost control. 100% self-hosted.",
       },
+      { name: "twitter:image", content: "https://projectnebula.site/og-image.png" },
+      { name: "twitter:image:alt", content: "Project Nebula — The Cloudflare for AI Agents" },
       { name: "theme-color", content: "#090A0F" },
     ],
     links: [
@@ -145,13 +151,20 @@ function RootShell({ children }: { children: ReactNode }) {
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "WebSite",
+        "name": "Project Nebula",
+        "url": "https://projectnebula.site",
+        "description": "The Cloudflare for AI Agents. Real-time trajectory interception, pre-execution token cost control, and deterministic compliance policies.",
+        "inLanguage": "en-US",
+      },
+      {
         "@type": "SoftwareApplication",
         "name": "Project Nebula",
         "alternateName": "The Cloudflare for AI Agents",
         "applicationCategory": "SecurityApplication, DeveloperApplication",
         "operatingSystem": "Linux, Docker, Kubernetes, Self-Hosted",
         "description":
-          "Real-Time AI Agent Interception & Pre-Execution Cost Control. 100% Self-Hosted.",
+          "Real-Time AI Agent Interception & Pre-Execution Cost Control. 100% Self-Hosted. Prevents OWASP LLM Top 10 risks including excessive agency, secures MCP server connections, and enforces EU AI Act Article 14 compliance for autonomous agents.",
         "url": "https://projectnebula.site",
         "offers": {
           "@type": "Offer",
@@ -164,7 +177,11 @@ function RootShell({ children }: { children: ReactNode }) {
           "Deterministic Policy & Compliance Enforcement (EU AI Act Article 14, HIPAA, SOC 2)",
           "Self-Updating Operational Playbooks",
           "100% Self-Hosted & Air-Gapped Deployment",
+          "OWASP LLM Top 10 Risk Mitigation (A08 Excessive Agency)",
+          "MCP Server Security & Governance",
+          "LangGraph, CrewAI, AutoGen, LlamaIndex Integration",
         ],
+        "keywords": "AI agent governance, AI agent runtime security, LLM cost control, OWASP LLM Top 10, MCP security, agentic AI compliance, self-hosted AI gateway",
       },
       {
         "@type": "Organization",
@@ -172,6 +189,51 @@ function RootShell({ children }: { children: ReactNode }) {
         "url": "https://projectnebula.site",
         "logo": "https://projectnebula.site/favicon.ico",
         "sameAs": ["https://github.com/santhoshkumarn2"],
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Project Nebula?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Project Nebula is the Cloudflare for AI Agents — an enterprise-grade, 100% self-hosted gateway that provides real-time AI agent interception, pre-execution cost control, and deterministic compliance policy enforcement for autonomous AI agents."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does Project Nebula control AI agent costs?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nebula's pre-execution cost predictor inspects the full payload — context length, tool invocation count, model pricing, retry probability — and calculates the exact projected cost before any LLM call is dispatched. Over threshold? The call is paused, rerouted to a lighter model, or blocked entirely. No tokens consumed, no surprise bills."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Project Nebula comply with the EU AI Act?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Project Nebula enforces EU AI Act Article 14 requirements for real-time active intervention on high-risk autonomous AI systems. Unlike post-hoc logging tools, Nebula intercepts and corrects agent behavior mid-execution, meeting the mandate for human/system oversight and active intervention."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What AI frameworks does Project Nebula support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Project Nebula is framework-agnostic and supports LangGraph, CrewAI, AutoGen, LlamaIndex, and custom agent loops. It works with any LLM provider including OpenAI, Anthropic, Google Gemini, Groq, DeepSeek, and open-weight models via vLLM, Ollama, and TGI."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is Project Nebula different from Langfuse, LangSmith, or Arize?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Langfuse, LangSmith, and Arize are post-hoc observability platforms that report on agent failures and cost blowouts after execution terminates. Project Nebula intercepts execution mid-flight at sub-5ms latency, deterministically blocking non-compliant tool executions before the action becomes irreversible. It's the difference between a security camera and a bodyguard."
+            }
+          }
+        ]
       },
     ],
   };

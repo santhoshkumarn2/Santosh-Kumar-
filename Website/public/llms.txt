@@ -2,7 +2,7 @@
 
 > Real-Time AI Agent Interception & Pre-Execution Cost Control. 100% Self-Hosted.
 
-Project Nebula is the on-premise security, policy enforcement, and cost-control gateway for autonomous AI agents ( The Cloudflare for AI Agents). It sits directly in the execution path of autonomous systems to monitor agent trajectories, predict and cap LLM costs before tokens are consumed, and deterministically enforce compliance policies mid-cycle.
+Project Nebula is the on-premise security, policy enforcement, and cost-control gateway for autonomous AI agents (The Cloudflare for AI Agents). It sits directly in the execution path of autonomous systems to monitor agent trajectories, predict and cap LLM costs before tokens are consumed, and deterministically enforce compliance policies mid-cycle.
 
 ## Core Capabilities
 
@@ -12,6 +12,17 @@ Project Nebula is the on-premise security, policy enforcement, and cost-control 
 - [Self-Updating Playbooks](https://projectnebula.site/#solution-4): Post-execution outcome validation feeds back into agent playbooks without prompt hacking or retraining.
 - [100% Self-Hosted Architecture](https://projectnebula.site/#solution-5): Runs entirely within enterprise VPCs or on-premise infrastructure; proprietary prompts and customer data never leave your perimeter.
 
+## OWASP LLM Top 10 Alignment
+
+Project Nebula directly mitigates key OWASP LLM Top 10 risks:
+- **A08 Excessive Agency**: Nebula's policy engine blocks unauthorized tool calls and enforces action whitelists, preventing agents from exceeding their granted permissions.
+- **A09 Overreliance**: Cost predictor and trajectory interception catch hallucination-driven loops before they commit irreversible actions.
+- **A10 Model Denial of Service**: Pre-execution cost caps prevent recursive agent loops from consuming unbounded compute resources.
+
+## MCP Server Security & Governance
+
+Nebula secures Model Context Protocol (MCP) server connections by intercepting and validating all tool call payloads between agents and MCP servers. Policy rules can restrict which MCP tools an agent may invoke, validate argument schemas, and enforce rate limits — preventing data exfiltration and unauthorized external API access.
+
 ## Key Technical Specifications
 
 - **Latency Impact**: < 5ms P99 interception overhead
@@ -19,6 +30,15 @@ Project Nebula is the on-premise security, policy enforcement, and cost-control 
 - **Model Compatibility**: Agnostic — works with OpenAI, Anthropic, Gemini, Groq, DeepSeek, and open-weight models (vLLM, Ollama, TGI)
 - **Framework Support**: LangGraph, CrewAI, AutoGen, LlamaIndex, custom agent loops
 - **Compliance Alignment**: EU AI Act Article 14 (human/system oversight & active intervention), SOC 2 Type II, HIPAA PII scrubbing
+
+## How Nebula Differs from Observability Tools
+
+| Feature | Project Nebula | Langfuse / LangSmith / Arize |
+|---------|---------------|------------------------------|
+| Intervention timing | Mid-execution (real-time) | Post-execution (after the fact) |
+| Cost control | Pre-execution prediction & caps | Post-execution cost reporting |
+| Policy enforcement | Deterministic, code-level gates | Prompt-level guidance only |
+| Data sovereignty | 100% self-hosted, air-gapped | Cloud-hosted SaaS |
 
 ## Documentation & Deep Dive
 

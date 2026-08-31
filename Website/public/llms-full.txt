@@ -1,7 +1,7 @@
 ﻿# Project Nebula: Full System Architecture & AI Agent Governance Documentation
 
 ## Overview
-Project Nebula is an enterprise-grade, 100% self-hosted real-time AI agent interception and pre-execution cost control engine. Frequently referred to as the " Cloudflare for AI Agents\, Nebula establishes an on-premise security and governance perimeter between enterprise application clients and upstream/local Large Language Models.
+Project Nebula is an enterprise-grade, 100% self-hosted real-time AI agent interception and pre-execution cost control engine. Frequently referred to as the "Cloudflare for AI Agents", Nebula establishes an on-premise security and governance perimeter between enterprise application clients and upstream/local Large Language Models.
 
 Unlike post-hoc observability platforms (e.g. Langfuse, LangSmith, Arize) that report on agent failures and cost blowouts after execution terminates, Nebula intercepts execution mid-flight at sub-5ms latency, deterministically blocking non-compliant tool executions, bounding runaway token spend before API requests depart, and enforcing regulatory standards (EU AI Act Article 14, HIPAA, SOC 2).
 
@@ -31,6 +31,57 @@ Unlike post-hoc observability platforms (e.g. Langfuse, LangSmith, Arize) that r
 - **Deployment**: Docker Compose, Kubernetes Helm Charts, Linux systemd service.
 - **Zero External Telemetry**: Runs in air-gapped environments without dependency on external third-party cloud analytics.
 
+## OWASP LLM Top 10 Risk Mitigation
+
+Project Nebula provides runtime defenses against key OWASP LLM Top 10 (2025) vulnerabilities:
+
+| OWASP Risk ID | Risk Name | How Nebula Mitigates |
+|--------------|-----------|---------------------|
+| A01 | Prompt Injection | Policy engine validates tool call outputs against expected schemas; trajectory interception detects anomalous execution patterns indicating injected instructions. |
+| A08 | Excessive Agency | Deterministic action whitelists prevent agents from invoking unauthorized tools. Every tool call is validated against a pre-approved allowlist before execution. |
+| A09 | Overreliance | Cost predictor and trajectory monitoring catch hallucination-driven recursive loops before they commit irreversible actions (database writes, API calls). |
+| A10 | Model Denial of Service | Pre-execution cost caps prevent recursive agent loops from consuming unbounded compute resources. Budget thresholds halt execution before the first token fires. |
+
+## MCP (Model Context Protocol) Server Security
+
+As AI agents increasingly use MCP servers to interact with external tools and data sources, Nebula provides a critical governance layer:
+
+- **Tool Call Validation**: Every MCP tool invocation passes through Nebula's policy engine. Arguments are validated against declared schemas, preventing injection of malicious parameters.
+- **Rate Limiting**: Per-agent and per-tool rate limits prevent excessive MCP server calls that could exfiltrate data or overwhelm external services.
+- **Scope Enforcement**: Agents are restricted to their declared MCP server scope. Cross-boundary tool access is blocked by default.
+- **Audit Trail**: All MCP interactions are logged with full payload context for compliance auditing.
+
+## Competitive Differentiation
+
+### Nebula vs. Post-Hoc Observability (Langfuse, LangSmith, Arize)
+
+| Capability | Project Nebula | Langfuse / LangSmith / Arize |
+|-----------|---------------|------------------------------|
+| **Intervention Timing** | Real-time mid-execution interception | Post-execution trace analysis |
+| **Cost Control** | Pre-execution prediction & automatic caps | Post-execution cost reporting |
+| **Policy Enforcement** | Deterministic code-level execution gates | No enforcement; prompt-level guidance only |
+| **Data Sovereignty** | 100% self-hosted, air-gapped | Cloud-hosted SaaS (data leaves your network) |
+| **Compliance** | EU AI Act Article 14 compliant (active intervention) | Does not meet Article 14 (passive logging only) |
+| **Latency** | < 5ms P99 overhead | N/A (post-hoc) |
+
+### When to Use Nebula
+- You run autonomous agents in production (not just prototypes)
+- You need regulatory compliance (EU AI Act, HIPAA, SOC 2)
+- Cost predictability matters (enterprise budgets, not experiments)
+- Data cannot leave your network boundary
+- You need active intervention, not just observability
+
+## Integration Examples
+
+### LangGraph Integration
+Nebula wraps the LangGraph execution loop as a transparent proxy. No code changes required — configure the Nebula endpoint as your LLM gateway and all agent traffic is automatically intercepted.
+
+### CrewAI Integration
+CrewAI crews route through Nebula's cost predictor before each agent step. Budget policies are evaluated per-crew and per-agent, with automatic model downscaling when thresholds are approached.
+
+### Custom Agent Loops
+For custom implementations, Nebula provides a lightweight SDK that wraps your LLM client. A single configuration change redirects all API calls through the interception layer.
+
 ## Canonical URLs & Resources
 - Website: https://projectnebula.site
 - Trajectory Interception: https://projectnebula.site/#solution-1
@@ -38,3 +89,5 @@ Unlike post-hoc observability platforms (e.g. Langfuse, LangSmith, Arize) that r
 - Policy Enforcement: https://projectnebula.site/#solution-3
 - Playbooks: https://projectnebula.site/#solution-4
 - Self-Hosted Architecture: https://projectnebula.site/#solution-5
+- Competitive Comparison: https://projectnebula.site/#competition
+- Contact & Early Access: https://projectnebula.site/#contact

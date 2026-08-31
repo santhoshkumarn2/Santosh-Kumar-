@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
       {
         name: "keywords",
         content:
-          "AI agents, agent governance, LLM security, AI cost control, EU AI Act Article 14, agent interception, self-hosted AI gateway, Cloudflare for AI agents, LangGraph, CrewAI",
+          "AI agents, agent governance, LLM security, AI cost control, EU AI Act Article 14, agent interception, self-hosted AI gateway, Cloudflare for AI agents, LangGraph, CrewAI, AI agent runtime security, OWASP LLM Top 10, MCP security, MCP server governance, agentic AI compliance, LLM inference cost optimization, AI gateway self-hosted, autonomous agent sandbox, agent policy enforcement",
       },
       { property: "og:title", content: "Project Nebula — The Cloudflare for AI Agents" },
       {
@@ -28,6 +28,9 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://projectnebula.site" },
+      { property: "og:image", content: "https://projectnebula.site/og-image.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       { property: "og:site_name", content: "Project Nebula" },
       { name: "twitter:card", content: "summary_large_image" },
       {
@@ -39,6 +42,7 @@ export const Route = createFileRoute("/")({
         content:
           "Intercept agent trajectories mid-flight, predict cost before execution, enforce policy every run. Fully self-hosted.",
       },
+      { name: "twitter:image", content: "https://projectnebula.site/og-image.png" },
     ],
     links: [
       { rel: "canonical", href: "https://projectnebula.site" },

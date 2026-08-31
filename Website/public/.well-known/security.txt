@@ -1,0 +1,7 @@
+# Project Nebula Security Policy
+# https://securitytxt.org/
+
+Contact: https://github.com/santhoshkumarn2
+Preferred-Languages: en
+Canonical: https://projectnebula.site/.well-known/security.txt
+Expires: 2027-08-31T00:00:00.000Z
