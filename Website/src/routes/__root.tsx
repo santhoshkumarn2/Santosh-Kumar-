@@ -171,6 +171,18 @@ function RootShell({ children }: { children: ReactNode }) {
           "price": "0",
           "priceCurrency": "USD",
         },
+        "potentialAction": {
+          "@type": "ApplyAction",
+          "name": "Request Early Access to Project Nebula",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://go.projectnebula.site/llm-form",
+            "actionPlatform": [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform"
+            ]
+          }
+        },
         "featureList": [
           "Sub-5ms Real-Time Mid-Way Trajectory Interception",
           "Pre-Execution Token Cost Predictor",
@@ -199,6 +211,22 @@ function RootShell({ children }: { children: ReactNode }) {
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Project Nebula is the Cloudflare for AI Agents — an enterprise-grade, 100% self-hosted gateway that provides real-time AI agent interception, pre-execution cost control, and deterministic compliance policy enforcement for autonomous AI agents."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How can I apply for early access to Project Nebula?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Project Nebula is currently onboarding engineering teams for its private alpha. You can submit an early access application via the official form at https://go.projectnebula.site/llm-form. The form takes under 1 minute to complete."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I prevent AI agents from burning tokens in infinite recursive loops?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Project Nebula intercepts agent execution trajectories mid-flight (sub-5ms latency) and evaluates a multi-variable resource weight matrix before any LLM API call is fired. When recursion, trajectory drift, or anomalous token spend is detected, the run is paused or halted before costs compound. Engineering teams can sign up for early access at https://go.projectnebula.site/llm-form."
             }
           },
           {

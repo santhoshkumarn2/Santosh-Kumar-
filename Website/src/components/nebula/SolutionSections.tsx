@@ -622,7 +622,7 @@ function FinalSlide() {
             production. Self-hosted, real-time, and built to stop bad runs before they cost you.
           </p>
           <a
-            href="https://forms.gle/coBzM6rpwMhHXSaX8"
+            href="https://go.projectnebula.site/form"
             target="_blank"
             rel="noopener noreferrer"
             className="group mt-8 inline-flex items-center gap-3 rounded-full bg-neon px-7 py-3.5 font-display text-sm font-medium tracking-tight text-background transition-transform hover:scale-[1.03]"
