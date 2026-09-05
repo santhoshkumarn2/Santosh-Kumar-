@@ -47,6 +47,96 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      if (url.pathname === "/api/track") {
+        if (request.method === "OPTIONS") {
+          return new Response(null, {
+            status: 204,
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "POST, OPTIONS",
+              "Access-Control-Allow-Headers": "Content-Type",
+            },
+          });
+        }
+        if (request.method === "POST") {
+          try {
+            const body = await request.text();
+            let eventPayload: Record<string, unknown> = {};
+            try {
+              eventPayload = JSON.parse(body);
+            } catch {}
+
+            // 1. Persist to Neon PostgreSQL Database
+            const dbUrl =
+              (env as Record<string, string>)?.DATABASE_URL ||
+              process.env.DATABASE_URL ||
+              "";
+
+            if (dbUrl) {
+              try {
+                const neonHost = new URL(dbUrl.replace(/^postgresql:\/\//, "https://")).hostname;
+                await fetch(`https://${neonHost}/sql`, {
+                  method: "POST",
+                  headers: {
+                    "neon-connection-string": dbUrl,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    query: `
+                      INSERT INTO funnel_events (
+                        session_id, event_type, slide_id, duration_seconds,
+                        referrer, utm_source, utm_medium, utm_campaign,
+                        user_agent, meta
+                      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+                    `,
+                    params: [
+                      eventPayload.sessionId || "unknown",
+                      eventPayload.type || "unknown",
+                      eventPayload.slideId || null,
+                      eventPayload.durationSeconds || null,
+                      eventPayload.referrer || null,
+                      eventPayload.utmSource || null,
+                      eventPayload.utmMedium || null,
+                      eventPayload.utmCampaign || null,
+                      eventPayload.userAgent || null,
+                      eventPayload.meta ? JSON.stringify(eventPayload.meta) : null,
+                    ],
+                  }),
+                });
+              } catch (neonErr) {
+                console.error("Neon tracking insert error:", neonErr);
+              }
+            }
+
+            // 2. Local filesystem append for development
+            try {
+              const { appendFileSync, existsSync, mkdirSync } = await import("node:fs");
+              const { resolve, join } = await import("node:path");
+              const dataDir = resolve(process.cwd(), "../data");
+              if (!existsSync(dataDir)) {
+                mkdirSync(dataDir, { recursive: true });
+              }
+              appendFileSync(join(dataDir, "events.jsonl"), body + "\n");
+            } catch {}
+
+            return new Response(JSON.stringify({ ok: true }), {
+              status: 200,
+              headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+              },
+            });
+          } catch (err) {
+            console.error("Tracker beacon error:", err);
+            return new Response(JSON.stringify({ ok: true }), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+        }
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

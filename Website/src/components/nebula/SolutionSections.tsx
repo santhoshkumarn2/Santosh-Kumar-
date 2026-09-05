@@ -647,7 +647,7 @@ function FinalSlide() {
           >
             <a
               className="badge-base__link LI-simple-link"
-              href="https://in.linkedin.com/in/santhoshkumar-project-nebula?trk=profile-badge"
+              href="https://go.projectnebula.site/linkedin"
             >
               
             </a>

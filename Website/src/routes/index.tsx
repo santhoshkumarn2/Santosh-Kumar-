@@ -5,6 +5,7 @@ import { DottedGlobe } from "@/components/nebula/DottedGlobe";
 import { ProblemSection } from "@/components/nebula/ProblemSection";
 import { SiteNav } from "@/components/nebula/SiteNav";
 import { SolutionSections } from "@/components/nebula/SolutionSections";
+import { initTracker } from "@/lib/tracker";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,6 +61,7 @@ function HeroPage() {
   const [dims, setDims] = useState({ w: 1440, h: 900 });
 
   useEffect(() => {
+    initTracker();
     const measure = () => setDims({ w: window.innerWidth, h: window.innerHeight });
     measure();
     window.addEventListener("resize", measure);

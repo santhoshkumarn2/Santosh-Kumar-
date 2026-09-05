@@ -3,3 +3,10 @@
 .env.local
 .vercel/
 __pycache__/
+node_modules/
+.output/
+dist/
+dist-ssr/
+.nitro/
+.tanstack/
+
