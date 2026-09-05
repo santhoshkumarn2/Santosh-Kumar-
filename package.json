@@ -1,0 +1,12 @@
+{
+  "name": "project-olympus",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npm --prefix dashboard run dev",
+    "dashboard": "npm --prefix dashboard run dev",
+    "sync": "npm --prefix dashboard run sync",
+    "website": "npm --prefix Website run dev"
+  }
+}

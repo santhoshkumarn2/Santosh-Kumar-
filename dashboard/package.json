@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "sync": "node scripts/collect-data.mjs",
-    "dev": "node scripts/collect-data.mjs && vite dev --port 3000",
+    "dev": "node scripts/start-dev.mjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
