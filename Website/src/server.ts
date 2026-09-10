@@ -68,10 +68,11 @@ export default {
             } catch {}
 
             // 1. Persist to Neon PostgreSQL Database
-            const dbUrl =
+            const rawDbUrl =
               (env as Record<string, string>)?.DATABASE_URL ||
               process.env.DATABASE_URL ||
               "";
+            const dbUrl = rawDbUrl.trim().replace(/^['"]|['"]$/g, "");
 
             if (dbUrl) {
               try {
@@ -95,11 +96,11 @@ export default {
                       eventPayload.type || "unknown",
                       eventPayload.slideId || null,
                       eventPayload.durationSeconds || null,
-                      eventPayload.referrer || null,
+                      eventPayload.referrer || request.headers.get("referer") || null,
                       eventPayload.utmSource || null,
                       eventPayload.utmMedium || null,
                       eventPayload.utmCampaign || null,
-                      eventPayload.userAgent || null,
+                      eventPayload.userAgent || request.headers.get("user-agent") || null,
                       eventPayload.meta ? JSON.stringify(eventPayload.meta) : null,
                     ],
                   }),

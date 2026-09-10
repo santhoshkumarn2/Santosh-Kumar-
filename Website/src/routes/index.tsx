@@ -312,7 +312,7 @@ function HeroPage() {
         </motion.div>
       )}
 
-      <div className="relative h-screen">
+      <div id="hero" className="relative h-screen">
         <div className="sticky top-0 flex h-screen w-full items-center overflow-hidden pt-16">
           {/* ambient glow */}
           <div className="pointer-events-none absolute inset-0 opacity-70 [background:radial-gradient(60%_50%_at_72%_50%,color-mix(in_oklab,var(--accent)_16%,transparent),transparent_70%)]" />

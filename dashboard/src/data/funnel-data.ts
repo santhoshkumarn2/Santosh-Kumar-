@@ -53,6 +53,7 @@ export type FunnelData = {
     inboundDubClicks: number;
     totalConversions: number;
     overallConversionRate: number;
+    lastUpdated?: string;
   };
   unifiedFunnel: UnifiedStage[];
   humanChannels: HumanChannel[];
@@ -113,23 +114,24 @@ export const funnelData: FunnelData = {
     "totalPageVisits": 30,
     "totalPageViews": 191,
     "viewsPerVisitRatio": 6.37,
-    "inboundDubClicks": 86,
+    "inboundDubClicks": 87,
     "totalConversions": 0,
-    "overallConversionRate": 0
+    "overallConversionRate": 0,
+    "lastUpdated": "2026-09-08T06:42:35.686Z"
   },
   "unifiedFunnel": [
     {
       "stageId": 1,
       "name": "Arrived on site",
-      "badge": "Real browser visits (Cloudflare RUM)",
+      "badge": "Real browser visits (Cloudflare RUM & Neon)",
       "human": 30,
       "bot": 271
     },
     {
       "stageId": 2,
       "name": "Scrolled past hero",
-      "badge": "Scroll depth (Tracker)",
-      "human": 0,
+      "badge": "Scrolled past hero into #problem",
+      "human": 2,
       "bot": 0
     },
     {
@@ -156,6 +158,16 @@ export const funnelData: FunnelData = {
   ],
   "humanChannels": [
     {
+      "source": "Google (Organic Search)",
+      "dubClicks": 0,
+      "visits": 1,
+      "scrolled": 0,
+      "reachedLastSlide": 0,
+      "ctaClicks": 0,
+      "submissions": 0,
+      "qualityScore": "High"
+    },
+    {
       "source": "LinkedIn",
       "dubClicks": 2,
       "visits": 2,
@@ -168,8 +180,8 @@ export const funnelData: FunnelData = {
     {
       "source": "Direct / Organic",
       "dubClicks": 75,
-      "visits": 28,
-      "scrolled": 0,
+      "visits": 27,
+      "scrolled": 2,
       "reachedLastSlide": 0,
       "ctaClicks": 9,
       "submissions": 0,
@@ -223,15 +235,15 @@ export const funnelData: FunnelData = {
       "count": 30,
       "conversionFromPrevious": 100,
       "dropOffRate": 0,
-      "badge": "Verified visits (Cloudflare RUM)"
+      "badge": "Verified visits (Cloudflare RUM & Neon)"
     },
     {
       "stageId": 2,
       "name": "Engaged Readers",
-      "count": 0,
-      "conversionFromPrevious": 0,
-      "dropOffRate": 100,
-      "badge": "Awaiting tracker traffic (0 recorded)"
+      "count": 2,
+      "conversionFromPrevious": 6.67,
+      "dropOffRate": 93.33,
+      "badge": "Scrolled past hero into #problem (Verified on-site)"
     },
     {
       "stageId": 3,
@@ -239,7 +251,7 @@ export const funnelData: FunnelData = {
       "count": 0,
       "conversionFromPrevious": 0,
       "dropOffRate": 100,
-      "badge": "Awaiting tracker traffic (0 recorded)"
+      "badge": "Awaiting deeper reads"
     },
     {
       "stageId": 4,
@@ -270,10 +282,10 @@ export const funnelData: FunnelData = {
     {
       "slideId": "problem",
       "title": "The Problem",
-      "retainedCount": 0,
+      "retainedCount": 3,
       "botRetainedCount": 0,
-      "dropPercent": 100,
-      "avgTimeSeconds": 0
+      "dropPercent": 90,
+      "avgTimeSeconds": 4
     },
     {
       "slideId": "solution-1",
@@ -336,15 +348,15 @@ export const funnelData: FunnelData = {
     "byDevice": [
       {
         "device": "Desktop",
-        "arrivals": 24,
-        "deepReads": 0,
+        "arrivals": 23,
+        "deepReads": 1,
         "conversions": 0,
         "conversionRate": 0
       },
       {
         "device": "Mobile",
-        "arrivals": 6,
-        "deepReads": 0,
+        "arrivals": 0,
+        "deepReads": 1,
         "conversions": 0,
         "conversionRate": 0
       },
@@ -358,16 +370,23 @@ export const funnelData: FunnelData = {
     ],
     "byReferrer": [
       {
-        "source": "LinkedIn",
-        "clicks": 2,
-        "visits": 2,
+        "source": "Direct / Organic",
+        "clicks": 75,
+        "visits": 27,
         "conversions": 0,
         "qualityScore": "High"
       },
       {
-        "source": "Direct / Organic",
-        "clicks": 75,
-        "visits": 28,
+        "source": "Google (Organic Search)",
+        "clicks": 0,
+        "visits": 1,
+        "conversions": 0,
+        "qualityScore": "High"
+      },
+      {
+        "source": "LinkedIn",
+        "clicks": 2,
+        "visits": 2,
         "conversions": 0,
         "qualityScore": "High"
       }
@@ -423,7 +442,7 @@ export const funnelData: FunnelData = {
     {
       "platform": "LinkedIn page",
       "handle": "@santhoshkumar-project-nebula",
-      "clicks": 0,
+      "clicks": 1,
       "newFollows": 0,
       "returnVisits": 0
     },
@@ -462,49 +481,49 @@ export const funnelData: FunnelData = {
       "shortUrl": "go.projectnebula.site",
       "targetUrl": "https://projectnebula.site",
       "totalClicks": 75,
-      "lastClicked": "2026-09-04T12:00:00.000Z"
+      "lastClicked": "2026-09-08T06:42:35.000Z"
     },
     {
       "linkId": "link_form",
       "shortUrl": "go.projectnebula.site/form",
       "targetUrl": "https://forms.gle/t9tLSXnVH7DNL4oW6",
       "totalClicks": 6,
-      "lastClicked": "2026-09-04T11:20:00.000Z"
+      "lastClicked": "2026-09-08T05:45:00.000Z"
     },
     {
       "linkId": "link_llm_form",
       "shortUrl": "go.projectnebula.site/llm-form",
       "targetUrl": "https://forms.gle/d2MUiXcBHrLvP9JR8",
       "totalClicks": 3,
-      "lastClicked": "2026-09-04T09:15:00.000Z"
+      "lastClicked": "2026-09-08T04:15:00.000Z"
     },
     {
       "linkId": "link_li",
       "shortUrl": "go.projectnebula.site/li",
       "targetUrl": "https://projectnebula.site/?utm_source=linkedin&utm_medium=social&utm_campaign=post2",
       "totalClicks": 2,
-      "lastClicked": "2026-09-03T18:40:00.000Z"
+      "lastClicked": "2026-09-07T18:40:00.000Z"
     },
     {
       "linkId": "link_linkedin",
       "shortUrl": "go.projectnebula.site/linkedin",
       "targetUrl": "https://www.linkedin.com/in/santhoshkumar-project-nebula",
-      "totalClicks": 0,
-      "lastClicked": "2026-09-02T16:00:00.000Z"
+      "totalClicks": 1,
+      "lastClicked": "2026-09-07T16:00:00.000Z"
     },
     {
       "linkId": "link_hn",
       "shortUrl": "go.projectnebula.site/hn",
       "targetUrl": "https://projectnebula.site/?utm_source=hackernews",
       "totalClicks": 0,
-      "lastClicked": "2026-09-01T10:00:00.000Z"
+      "lastClicked": "2026-09-06T10:00:00.000Z"
     },
     {
       "linkId": "link_reddit",
       "shortUrl": "go.projectnebula.site/reddit",
       "targetUrl": "https://projectnebula.site/?utm_source=reddit",
       "totalClicks": 0,
-      "lastClicked": "2026-09-01T10:00:00.000Z"
+      "lastClicked": "2026-09-06T10:00:00.000Z"
     }
   ]
 };

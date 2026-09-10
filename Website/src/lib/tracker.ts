@@ -2,7 +2,7 @@
  * Client-side funnel tracker for Project Nebula
  * Tracks:
  * 1. Page visits & arrivals (with referrer & UTM parameters)
- * 2. Slide-by-slide visibility & scroll depth via IntersectionObserver
+ * 2. Slide-by-slide visibility & scroll depth via IntersectionObserver + Scroll Position Fallback
  * 3. Dwell time on each section
  * 4. CTA button clicks ("Request Early Access")
  * 5. Outbound social profile clicks (LinkedIn)
@@ -47,16 +47,25 @@ function sendEvent(event: Omit<TrackEvent, "sessionId" | "timestamp" | "userAgen
   const data = JSON.stringify(payload);
   const endpoint = "/api/track";
 
-  if (navigator.sendBeacon) {
-    const blob = new Blob([data], { type: "application/json" });
-    navigator.sendBeacon(endpoint, blob);
-  } else {
+  // Modern fetch with keepalive is rock-solid across mobile and desktop browsers
+  try {
     fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: data,
       keepalive: true,
-    }).catch(() => {});
+    }).catch(() => {
+      // Fallback to sendBeacon if fetch errors
+      if (navigator.sendBeacon) {
+        const blob = new Blob([data], { type: "application/json" });
+        navigator.sendBeacon(endpoint, blob);
+      }
+    });
+  } catch {
+    if (navigator.sendBeacon) {
+      const blob = new Blob([data], { type: "application/json" });
+      navigator.sendBeacon(endpoint, blob);
+    }
   }
 }
 
@@ -81,11 +90,8 @@ export function initTracker() {
     utmCampaign,
   });
 
-  // 2. Slide tracking via IntersectionObserver
-  const observedSlides = new Set<string>();
-  const slideEntryTimes = new Map<string, number>();
-
   const sectionsToTrack = [
+    "hero",
     "problem",
     "solution-1",
     "solution-2",
@@ -96,57 +102,127 @@ export function initTracker() {
     "contact",
   ];
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const now = Date.now();
-      for (const entry of entries) {
-        const slideId = entry.target.id;
-        if (!slideId) continue;
+  // 2. Slide tracking via IntersectionObserver + Scroll Fallback
+  const observedSlides = new Set<string>();
+  const slideEntryTimes = new Map<string, number>();
 
-        if (entry.isIntersecting) {
-          slideEntryTimes.set(slideId, now);
-
-          if (!observedSlides.has(slideId)) {
-            observedSlides.add(slideId);
-            sendEvent({
-              type: "slide_view",
-              slideId,
-              meta: { initialHit: true },
-            });
-          }
-        } else {
-          const entryTime = slideEntryTimes.get(slideId);
-          if (entryTime) {
-            const durationSeconds = Math.round((now - entryTime) / 100) / 10;
-            if (durationSeconds > 0.5) {
-              sendEvent({
-                type: "slide_view",
-                slideId,
-                durationSeconds,
-                meta: { dwell: true },
-              });
-            }
-            slideEntryTimes.delete(slideId);
-          }
-        }
-      }
-    },
-    { threshold: 0.3 }
-  );
-
-  // Attach observer to all slides
-  const attachObservers = () => {
-    for (const id of sectionsToTrack) {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
+  const markSlideVisible = (slideId: string, trigger: string) => {
+    const now = Date.now();
+    if (!slideEntryTimes.has(slideId)) {
+      slideEntryTimes.set(slideId, now);
+    }
+    if (!observedSlides.has(slideId)) {
+      observedSlides.add(slideId);
+      sendEvent({
+        type: "slide_view",
+        slideId,
+        meta: { initialHit: true, trigger },
+      });
     }
   };
 
-  if (document.readyState === "complete") {
-    attachObservers();
-  } else {
-    window.addEventListener("load", attachObservers);
+  const markSlideExit = (slideId: string) => {
+    const entryTime = slideEntryTimes.get(slideId);
+    if (entryTime) {
+      const durationSeconds = Math.round((Date.now() - entryTime) / 100) / 10;
+      if (durationSeconds > 0.5) {
+        sendEvent({
+          type: "slide_view",
+          slideId,
+          durationSeconds,
+          meta: { dwell: true },
+        });
+      }
+      slideEntryTimes.delete(slideId);
+    }
+  };
+
+  // IntersectionObserver with low threshold (0.05) and negative bottom margin
+  let observer: IntersectionObserver | null = null;
+  if (typeof IntersectionObserver !== "undefined") {
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const slideId = entry.target.id;
+          if (!slideId) continue;
+
+          if (entry.isIntersecting) {
+            markSlideVisible(slideId, "intersection_observer");
+          } else {
+            markSlideExit(slideId);
+          }
+        }
+      },
+      {
+        threshold: [0.05, 0.2],
+        rootMargin: "0px 0px -5% 0px",
+      }
+    );
   }
+
+  // Fallback scroll check (checks bounding rect for every slide)
+  const checkScrollVisibility = () => {
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    for (const id of sectionsToTrack) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      const inView = rect.top < vh * 0.85 && rect.bottom > vh * 0.1;
+      if (inView) {
+        markSlideVisible(id, "scroll_position");
+      }
+    }
+  };
+
+  // Attach observers to all slides with aggressive retries
+  const observedElements = new Set<string>();
+  const attachObservers = () => {
+    for (const id of sectionsToTrack) {
+      if (observedElements.has(id)) continue;
+      const el = document.getElementById(id);
+      if (el) {
+        observedElements.add(id);
+        if (observer) {
+          observer.observe(el);
+        }
+      }
+    }
+    checkScrollVisibility();
+  };
+
+  // Run attach immediately, and retry to catch any elements mounting after animations/render
+  attachObservers();
+  if (typeof requestAnimationFrame !== "undefined") {
+    requestAnimationFrame(attachObservers);
+  }
+  setTimeout(attachObservers, 300);
+  setTimeout(attachObservers, 1000);
+  setTimeout(attachObservers, 2500);
+
+  // Passive scroll & resize listener for dual-trigger fallback
+  let scrollTimeout: number | null = null;
+  const onScrollThrottled = () => {
+    if (scrollTimeout) return;
+    scrollTimeout = window.setTimeout(() => {
+      scrollTimeout = null;
+      checkScrollVisibility();
+      if (observedElements.size < sectionsToTrack.length) {
+        attachObservers();
+      }
+    }, 150);
+  };
+
+  window.addEventListener("scroll", onScrollThrottled, { passive: true });
+  window.addEventListener("resize", onScrollThrottled, { passive: true });
+
+  // On page visibility change / unload, record any remaining dwell times
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      for (const slideId of slideEntryTimes.keys()) {
+        markSlideExit(slideId);
+      }
+    }
+  });
 
   // 3. CTA & Social clicks
   document.addEventListener("click", (e) => {

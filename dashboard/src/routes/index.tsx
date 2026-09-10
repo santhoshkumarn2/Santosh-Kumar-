@@ -32,7 +32,7 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const d = funnelData;
-  const lastUpdated = new Date(d.dubLinks[0]?.lastClicked ?? Date.now()).toLocaleString("en-US", {
+  const lastUpdated = new Date(d.summary.lastUpdated || d.dubLinks[0]?.lastClicked || Date.now()).toLocaleString("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "UTC",

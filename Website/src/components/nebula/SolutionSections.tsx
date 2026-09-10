@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 type A = { reduce: boolean };
 
@@ -591,18 +591,6 @@ function CompetitionSlide() {
 
 /* ---------------- Final — Get Early Access ---------------- */
 function FinalSlide() {
-  useEffect(() => {
-    // LinkedIn profile badge script
-    const script = document.createElement("script");
-    script.src = "https://platform.linkedin.com/badges/js/profile.js";
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-    return () => {
-      script.remove();
-    };
-  }, []);
-
   return (
     <section
       id="contact"
@@ -636,22 +624,38 @@ function FinalSlide() {
         </div>
 
         <div className="flex flex-col items-center justify-self-center gap-5">
-          <div
-            className="badge-base LI-profile-badge"
-            data-locale="en_US"
-            data-size="large"
-            data-theme="dark"
-            data-type="HORIZONTAL"
-            data-vanity="santhoshkumar-project-nebula"
-            data-version="v1"
+          <a
+            href="https://go.projectnebula.site/linkedin"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Santhosh Kumar N on LinkedIn - Connect with the creator of Project Nebula"
+            className="group relative flex w-full max-w-sm items-center gap-4 rounded-2xl border border-border/80 bg-card/70 p-5 shadow-2xl backdrop-blur-md transition-all duration-300 hover:border-neon/40 hover:bg-card/90 hover:scale-[1.02]"
           >
-            <a
-              className="badge-base__link LI-simple-link"
-              href="https://go.projectnebula.site/linkedin"
-            >
-              
-            </a>
-          </div>
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0A66C2]/15 text-[#0A66C2] ring-1 ring-[#0A66C2]/30 transition-colors group-hover:bg-[#0A66C2]/25">
+              <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.64 1.64 0 1 0 0 3.28 1.64 1.64 0 0 0 0-3.28Z" />
+              </svg>
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <div className="flex items-center gap-1.5">
+                <span className="truncate font-display text-sm font-semibold tracking-tight text-foreground group-hover:text-primary">
+                  Santhosh Kumar N
+                </span>
+                <span className="inline-block text-[#0A66C2]">
+                  <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                </span>
+              </div>
+              <p className="truncate text-xs text-muted-foreground">
+                Architect · Project Nebula
+              </p>
+              <p className="mt-1 flex items-center gap-1 text-[11px] font-medium text-neon">
+                Say hello on LinkedIn
+                <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
+              </p>
+            </div>
+          </a>
           <p className="text-center text-xs text-muted-foreground">
             Built by Santhosh Kumar N — say hello on LinkedIn
           </p>
